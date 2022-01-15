@@ -8,8 +8,6 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 
 const DesktopNavigation = function () {
-	const [searchOpen, setSearchOpen] = useState(false);
-
 	return (
 		<AppBar>
 			<Toolbar
