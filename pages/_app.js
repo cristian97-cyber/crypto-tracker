@@ -7,7 +7,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { CacheProvider } from "@emotion/react";
 import createEmotionCache from "../src/createEmotionCache";
 import theme from "../src/theme/Theme";
-
 import DesktopNavigation from "../src/components/DesktopNavigation";
 
 // Client-side cache, shared for the whole session of the user in the browser.
