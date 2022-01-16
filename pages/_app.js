@@ -13,8 +13,6 @@ import DesktopNavigation from "../src/components/DesktopNavigation";
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
-console.log(theme);
-
 export default function MyApp(props) {
 	const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 

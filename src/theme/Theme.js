@@ -13,8 +13,14 @@ const theme = createTheme({
 	typography: {
 		logo: {
 			fontFamily: "Roboto",
-			fontSize: "1.5rem",
-			fontWeight: 300,
+			fontSize: "1.2rem",
+			fontWeight: 500,
+			textTransform: "none",
+		},
+		tabs: {
+			fontFamily: "Roboto",
+			fontSize: "1rem",
+			fontWeight: 400,
 			textTransform: "none",
 		},
 	},
