@@ -10,7 +10,11 @@ const NewsView = function (props) {
 	const { link, title, image, description, source, date } = props;
 
 	return (
-		<Card sx={{ width: "100%" }}>
+		<Card
+			sx={{
+				width: "100%",
+			}}
+		>
 			<CardActionArea>
 				<CardMedia
 					component="img"

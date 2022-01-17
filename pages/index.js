@@ -36,7 +36,6 @@ const Index = function () {
 							>
 								Global Crypto Stats
 							</Typography>
-
 							<Grid container columnSpacing={2} rowSpacing={4}>
 								<Grid item xs={6}>
 									<Typography variant="subtitle1">
@@ -68,7 +67,7 @@ const Index = function () {
 					<Box
 						component="section"
 						sx={{
-							backgroundColor: theme.palette.common.lightBackground,
+							backgroundImage: theme.palette.common.surface5,
 							py: "5rem",
 						}}
 					>
@@ -76,7 +75,6 @@ const Index = function () {
 							<Typography variant="h1" sx={{ mb: "1.5rem" }}>
 								Top 10 Cryptos In The World
 							</Typography>
-
 							<CryptoList />
 						</Container>
 					</Box>
@@ -87,7 +85,6 @@ const Index = function () {
 							<Typography variant="h1" sx={{ mb: "1.5rem" }}>
 								Latest Cryptos News
 							</Typography>
-
 							<NewsList />
 						</Container>
 					</Box>
