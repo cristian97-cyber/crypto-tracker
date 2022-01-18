@@ -6,7 +6,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import Pagination from "@mui/material/Pagination";
 
-import CryptoList from "../src/components/crypto/CryptoList";
+import CryptoList from "../../src/components/crypto/CryptoList";
 
 const Cryptocurrencies = function () {
 	return (
