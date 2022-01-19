@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import { useTheme, alpha } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -8,15 +9,14 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Link from "./Link";
-import SearchIcon from "@mui/icons-material/Search";
+import Link from "../Link";
 import Fab from "@mui/material/Fab";
 import Zoom from "@mui/material/Zoom";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+
+import DesktopNavigation from "./DesktopNavigation";
+import MobileNavigation from "./MobileNavigation";
+import NavigationSearch from "./NavigationSearch";
 
 const routes = [
 	{
@@ -75,14 +75,25 @@ const ScrollTop = function (props) {
 	);
 };
 
-const DesktopNavigation = function (props) {
-	const [tabValue, setTabValue] = useState("/");
+const Navigation = function (props) {
+	const [drawerOpen, setDrawerOpen] = useState(false);
 
-	const handleChangeTab = function (event, newValue) {
-		setTabValue(newValue);
+	const toggleDrawer = function (event) {
+		if (
+			event &&
+			event.type === "keydown" &&
+			(event.key === "Tab" || event.key === "Shift")
+		)
+			return;
+
+		setDrawerOpen(prev => !prev);
 	};
 
+	const closeDrawer = () => setDrawerOpen(false);
+
 	const theme = useTheme();
+	const downLg = useMediaQuery(theme.breakpoints.down("lg"));
+	const downSm = useMediaQuery(theme.breakpoints.down("sm"));
 
 	return (
 		<>
@@ -96,8 +107,13 @@ const DesktopNavigation = function (props) {
 						color="inherit"
 						component={Link}
 						href="/"
+						onClick={closeDrawer}
 						sx={{
 							mr: "1rem",
+
+							[theme.breakpoints.down("lg")]: {
+								mr: "auto",
+							},
 						}}
 					>
 						<Grid container alignItems="center">
@@ -116,59 +132,29 @@ const DesktopNavigation = function (props) {
 									}}
 								/>
 							</Grid>
-							<Grid item>
-								<Typography variant="logo">Crypto Tracker</Typography>
-							</Grid>
+							{!downSm && (
+								<Grid item>
+									<Typography variant="logo">Crypto Tracker</Typography>
+								</Grid>
+							)}
 						</Grid>
 					</Button>
 
-					<Tabs
-						value={tabValue}
-						onChange={handleChangeTab}
-						aria-label="Navigation tabs"
-						sx={{
-							mr: "auto",
-						}}
-					>
-						{routes.map(route => (
-							<Tab
-								key={route.link}
-								label={route.name}
-								value={route.link}
-								component={Link}
-								href={route.link}
-								sx={{
-									...theme.typography.tabs,
-									px: "1rem",
-								}}
+					{!downLg ? (
+						<>
+							<DesktopNavigation routes={routes} />
+							<NavigationSearch />
+						</>
+					) : (
+						<>
+							<NavigationSearch closeDrawer={closeDrawer} />
+							<MobileNavigation
+								routes={routes}
+								drawerOpen={drawerOpen}
+								toggleDrawer={toggleDrawer}
 							/>
-						))}
-					</Tabs>
-
-					<TextField
-						id="search-currency"
-						InputProps={{
-							startAdornment: (
-								<InputAdornment position="start">
-									<SearchIcon />
-								</InputAdornment>
-							),
-							placeholder: "Search currency",
-						}}
-						sx={{
-							width: "20rem",
-							backgroundColor: alpha(theme.palette.common.white, 0.15),
-							borderRadius: 2,
-
-							"&:hover": {
-								backgroundColor: alpha(theme.palette.common.white, 0.25),
-							},
-
-							"& .MuiOutlinedInput-notchedOutline": {
-								border: "none",
-							},
-						}}
-					/>
+						</>
+					)}
 				</Toolbar>
 			</AppBar>
 			<Toolbar
@@ -190,4 +176,4 @@ const DesktopNavigation = function (props) {
 	);
 };
 
-export default DesktopNavigation;
+export default Navigation;

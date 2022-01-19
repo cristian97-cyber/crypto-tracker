@@ -7,7 +7,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { CacheProvider } from "@emotion/react";
 import createEmotionCache from "../src/createEmotionCache";
 import theme from "../src/theme/Theme";
-import DesktopNavigation from "../src/components/DesktopNavigation";
+import Navigation from "../src/components/navigation/Navigation";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -25,7 +25,7 @@ export default function MyApp(props) {
 				{/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
 				<CssBaseline />
 
-				<DesktopNavigation />
+				<Navigation />
 				<Component {...pageProps} />
 			</ThemeProvider>
 		</CacheProvider>
