@@ -1,6 +1,7 @@
 import Head from "next/head";
 
 import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -53,6 +54,7 @@ const chartData = [1200, 1300, 1500, 1000, 900, 2000, 2500];
 
 const CryptocurrencyDetail = function () {
 	const theme = useTheme();
+	const downMd = useMediaQuery(theme.breakpoints.down("md"));
 
 	return (
 		<>
@@ -65,6 +67,7 @@ const CryptocurrencyDetail = function () {
 				spacing={8}
 				sx={{
 					py: "2rem",
+					pb: "5rem",
 				}}
 			>
 				<Grid item>
@@ -72,10 +75,11 @@ const CryptocurrencyDetail = function () {
 						<Container fixed>
 							<Grid
 								container
+								justifyContent={!downMd ? "flex-start" : "center"}
 								alignItems="center"
 								spacing={2}
 								sx={{
-									mb: "1.5rem",
+									mb: "2.5rem",
 								}}
 							>
 								<Grid item>
@@ -92,28 +96,33 @@ const CryptocurrencyDetail = function () {
 									/>
 								</Grid>
 							</Grid>
-							<Grid container columnSpacing={2} rowSpacing={4}>
-								<Grid item xs={6}>
+							<Grid
+								container
+								columnSpacing={2}
+								rowSpacing={4}
+								align={!downMd ? "left" : "center"}
+							>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Symbol</Typography>
 									<Typography variant="cryptoStats">BTC</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Rank</Typography>
 									<Typography variant="cryptoStats">1</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Price</Typography>
 									<Typography variant="cryptoStats">48.6K</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Volume</Typography>
 									<Typography variant="cryptoStats">4B</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Market Cap</Typography>
 									<Typography variant="cryptoStats">914.68</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Website</Typography>
 									<Link
 										href="https://bitcoin.org"
@@ -131,7 +140,7 @@ const CryptocurrencyDetail = function () {
 						</Container>
 					</Box>
 				</Grid>
-				<Grid item>
+				<Grid item sx={{ width: "100%" }}>
 					<Box
 						component="section"
 						sx={{
@@ -140,17 +149,27 @@ const CryptocurrencyDetail = function () {
 						}}
 					>
 						<Container fixed>
-							<Typography variant="h1" sx={{ mb: "1.5rem" }}>
+							<Typography
+								variant="h1"
+								align={!downMd ? "left" : "center"}
+								sx={{ mb: "2.5rem" }}
+							>
 								Markets
 							</Typography>
-							<MarketsTable data={tableData} />
+							<Box sx={{ width: "100%" }}>
+								<MarketsTable data={tableData} />
+							</Box>
 						</Container>
 					</Box>
 				</Grid>
-				<Grid item>
+				<Grid item sx={{ width: "100%" }}>
 					<Box component="section">
 						<Container fixed>
-							<Typography variant="h1" sx={{ mb: "1.5rem" }}>
+							<Typography
+								variant="h1"
+								align={!downMd ? "left" : "center"}
+								sx={{ mb: "2.5rem" }}
+							>
 								Historical Price Chart
 							</Typography>
 							<CryptoHistorical data={chartData} />

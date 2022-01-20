@@ -99,7 +99,7 @@ const CryptoList = function () {
 	return (
 		<Grid container spacing={4}>
 			{dummyCrypto.map(crypto => (
-				<Grid item xs={4} key={crypto.id}>
+				<Grid item xs={12} md={6} lg={4} key={crypto.id}>
 					<CryptoView
 						rank={crypto.rank}
 						name={crypto.name}

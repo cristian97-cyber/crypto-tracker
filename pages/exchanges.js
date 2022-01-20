@@ -1,5 +1,7 @@
 import Head from "next/head";
 
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -8,6 +10,9 @@ import Grid from "@mui/material/Grid";
 import ExchangesTable from "../src/components/exchanges/ExchangesTable";
 
 const Exchanges = function () {
+	const theme = useTheme();
+	const downMd = useMediaQuery(theme.breakpoints.down("md"));
+
 	const tableData = [
 		{
 			name: "Binance",
@@ -64,16 +69,16 @@ const Exchanges = function () {
 			<Head>
 				<title>Crypto Tracker | All Available Exchanges</title>
 			</Head>
-			<Box component="section" sx={{ py: "2rem" }}>
+			<Box component="section" sx={{ pt: "2rem", pb: "5rem", width: "100%" }}>
 				<Container fixed>
 					<Grid container direction="column" spacing={6}>
 						<Grid item>
-							<Typography variant="h1">Exchanges</Typography>
+							<Typography variant="h1" align={!downMd ? "left" : "center"}>
+								Exchanges
+							</Typography>
 						</Grid>
-						<Grid item>
-							<Box sx={{ width: "100%" }}>
-								<ExchangesTable data={tableData} />
-							</Box>
+						<Grid item sx={{ width: "100%" }}>
+							<ExchangesTable data={tableData} />
 						</Grid>
 					</Grid>
 				</Container>

@@ -40,7 +40,7 @@ const routes = [
 const ScrollTop = function (props) {
 	const { children } = props;
 
-	const trigger = useScrollTrigger({
+	const triggerTop = useScrollTrigger({
 		disableHysteresis: true,
 		threshold: 100,
 	});
@@ -59,7 +59,7 @@ const ScrollTop = function (props) {
 	};
 
 	return (
-		<Zoom in={trigger}>
+		<Zoom in={triggerTop}>
 			<Box
 				onClick={handleClick}
 				role="presentation"
@@ -67,6 +67,7 @@ const ScrollTop = function (props) {
 					position: "fixed",
 					bottom: 16,
 					right: 16,
+					zIndex: theme => theme.zIndex.appBar,
 				}}
 			>
 				{children}
@@ -77,6 +78,7 @@ const ScrollTop = function (props) {
 
 const Navigation = function (props) {
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [triggerBottom, setTriggerBottom] = useState(false);
 
 	const toggleDrawer = function (event) {
 		if (
@@ -168,7 +170,12 @@ const Navigation = function (props) {
 				}}
 			/>
 			<ScrollTop {...props}>
-				<Fab color="primary" size="small" aria-label="scroll back to the top">
+				<Fab
+					color="primary"
+					size="small"
+					onClick={closeDrawer}
+					aria-label="scroll back to the top"
+				>
 					<KeyboardArrowUpIcon />
 				</Fab>
 			</ScrollTop>

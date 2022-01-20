@@ -1,6 +1,7 @@
 import Head from "next/head";
 
 import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -11,6 +12,7 @@ import NewsList from "../src/components/news/NewsList";
 
 const Index = function () {
 	const theme = useTheme();
+	const downMd = useMediaQuery(theme.breakpoints.down("md"));
 
 	return (
 		<>
@@ -22,7 +24,8 @@ const Index = function () {
 				direction="column"
 				spacing={8}
 				sx={{
-					py: "2rem",
+					pt: "2rem",
+					pb: "5rem",
 				}}
 			>
 				<Grid item>
@@ -30,32 +33,38 @@ const Index = function () {
 						<Container fixed>
 							<Typography
 								variant="h1"
+								align={!downMd ? "left" : "center"}
 								sx={{
-									mb: "1.5rem",
+									mb: "2.5rem",
 								}}
 							>
 								Global Crypto Stats
 							</Typography>
-							<Grid container columnSpacing={2} rowSpacing={4}>
-								<Grid item xs={6}>
+							<Grid
+								container
+								columnSpacing={2}
+								rowSpacing={4}
+								align={!downMd ? "left" : "center"}
+							>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">
 										Total Cryptocurrencies
 									</Typography>
 									<Typography variant="cryptoStats">12,176</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Total Exchanges</Typography>
 									<Typography variant="cryptoStats">373</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Total Market Cap</Typography>
 									<Typography variant="cryptoStats">$2.4T</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Total 24th Volume</Typography>
 									<Typography variant="cryptoStats">$92.3B</Typography>
 								</Grid>
-								<Grid item xs={6}>
+								<Grid item xs={12} sm={6}>
 									<Typography variant="subtitle1">Total Markets</Typography>
 									<Typography variant="cryptoStats">80K</Typography>
 								</Grid>
@@ -72,7 +81,11 @@ const Index = function () {
 						}}
 					>
 						<Container fixed>
-							<Typography variant="h1" sx={{ mb: "1.5rem" }}>
+							<Typography
+								variant="h1"
+								align={!downMd ? "left" : "center"}
+								sx={{ mb: "2.5rem" }}
+							>
 								Top 10 Cryptos In The World
 							</Typography>
 							<CryptoList />
@@ -82,7 +95,11 @@ const Index = function () {
 				<Grid item>
 					<Box component="section">
 						<Container fixed>
-							<Typography variant="h1" sx={{ mb: "1.5rem" }}>
+							<Typography
+								variant="h1"
+								align={!downMd ? "left" : "center"}
+								sx={{ mb: "2.5rem" }}
+							>
 								Latest Cryptos News
 							</Typography>
 							<NewsList />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { visuallyHidden } from "@mui/utils";
+import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -118,52 +119,54 @@ const ExchangesTable = function (props) {
 				backgroundImage: "none",
 			}}
 		>
-			<Table aria-label="Exchanges table">
-				<EnhancedTableHead
-					order={order}
-					orderBy={orderBy}
-					onRequestSort={handleRequestSort}
+			<TableContainer>
+				<Table aria-label="Exchanges table" sx={{ minWidth: 500 }}>
+					<EnhancedTableHead
+						order={order}
+						orderBy={orderBy}
+						onRequestSort={handleRequestSort}
+					/>
+					<TableBody>
+						{data
+							.slice()
+							.sort(getComparator(order, orderBy))
+							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+							.map(row => {
+								return (
+									<TableRow key={row.name} hover>
+										<TableCell component="th" scope="row" padding="none">
+											{row.name}
+										</TableCell>
+										<TableCell>{row.tradeVolume}</TableCell>
+										<TableCell>{row.markets}</TableCell>
+										<TableCell>{row.change}</TableCell>
+									</TableRow>
+								);
+							})}
+						{emptyRows > 0 && (
+							<TableRow
+								style={{ height: 53 * emptyRows }}
+								sx={{
+									"&:hover": {
+										cursor: "auto",
+									},
+								}}
+							>
+								<TableCell colSpan={4} />
+							</TableRow>
+						)}
+					</TableBody>
+				</Table>
+				<TablePagination
+					rowsPerPageOptions={[5, 10, 25]}
+					component="div"
+					count={data.length}
+					rowsPerPage={rowsPerPage}
+					page={page}
+					onPageChange={handleChangePage}
+					onRowsPerPageChange={handleChangeRowsPerPage}
 				/>
-				<TableBody>
-					{data
-						.slice()
-						.sort(getComparator(order, orderBy))
-						.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-						.map(row => {
-							return (
-								<TableRow key={row.name} hover>
-									<TableCell component="th" scope="row" padding="none">
-										{row.name}
-									</TableCell>
-									<TableCell>{row.tradeVolume}</TableCell>
-									<TableCell>{row.markets}</TableCell>
-									<TableCell>{row.change}</TableCell>
-								</TableRow>
-							);
-						})}
-					{emptyRows > 0 && (
-						<TableRow
-							style={{ height: 53 * emptyRows }}
-							sx={{
-								"&:hover": {
-									cursor: "auto",
-								},
-							}}
-						>
-							<TableCell colSpan={4} />
-						</TableRow>
-					)}
-				</TableBody>
-			</Table>
-			<TablePagination
-				rowsPerPageOptions={[5, 10, 25]}
-				component="div"
-				count={data.length}
-				rowsPerPage={rowsPerPage}
-				page={page}
-				onPageChange={handleChangePage}
-				onRowsPerPageChange={handleChangeRowsPerPage}
-			/>
+			</TableContainer>
 		</Paper>
 	);
 };

@@ -119,7 +119,7 @@ const NewsList = function () {
 	return (
 		<Grid container spacing={4}>
 			{dummyNews.map(news => (
-				<Grid item xs={4} key={news.id}>
+				<Grid item xs={12} md={6} lg={4} key={news.id}>
 					<NewsView
 						link={news.link}
 						title={news.title}
