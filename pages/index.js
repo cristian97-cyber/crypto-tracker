@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Head from "next/head";
 
 import { useTheme } from "@mui/material/styles";
@@ -9,8 +10,18 @@ import Box from "@mui/material/Box";
 
 import CryptoList from "../src/components/crypto/CryptoList";
 import NewsList from "../src/components/news/NewsList";
+import sendHttp from "../src/sendHttp";
+import { STATS_API_URL, EXCHANGES_API_URL } from "../src/config";
 
-const Index = function () {
+const Index = function (props) {
+	const { stats } = props;
+
+	const [language, setLanguage] = useState("en-US");
+
+	useEffect(() => {
+		setLanguage(navigator.language);
+	}, []);
+
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -46,28 +57,31 @@ const Index = function () {
 								rowSpacing={4}
 								align={!downMd ? "left" : "center"}
 							>
-								<Grid item xs={12} sm={6}>
-									<Typography variant="subtitle1">
-										Total Cryptocurrencies
-									</Typography>
-									<Typography variant="cryptoStats">12,176</Typography>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<Typography variant="subtitle1">Total Exchanges</Typography>
-									<Typography variant="cryptoStats">373</Typography>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<Typography variant="subtitle1">Total Market Cap</Typography>
-									<Typography variant="cryptoStats">$2.4T</Typography>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<Typography variant="subtitle1">Total 24th Volume</Typography>
-									<Typography variant="cryptoStats">$92.3B</Typography>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<Typography variant="subtitle1">Total Markets</Typography>
-									<Typography variant="cryptoStats">80K</Typography>
-								</Grid>
+								{Object.values(stats).map(stat => {
+									const options = {
+										style: "currency",
+										currency: "USD",
+										currencyDisplay: "narrowSymbol",
+										notation: "compact",
+									};
+
+									const nf = new Intl.NumberFormat(
+										language,
+										stat.name === "Total Market Cap" ||
+										stat.name === "Total 24h Volume"
+											? options
+											: undefined
+									);
+
+									return (
+										<Grid item xs={12} sm={6} key={stat.name}>
+											<Typography variant="subtitle1">{stat.name}</Typography>
+											<Typography variant="cryptoStats">
+												{nf.format(stat.data)}
+											</Typography>
+										</Grid>
+									);
+								})}
 							</Grid>
 						</Container>
 					</Box>
@@ -112,3 +126,42 @@ const Index = function () {
 };
 
 export default Index;
+
+export async function getStaticProps() {
+	let stats;
+	try {
+		let foundStats = await sendHttp(STATS_API_URL);
+		foundStats = foundStats[0];
+
+		const foundExchanges = await sendHttp(EXCHANGES_API_URL);
+
+		stats = {
+			totalCryptos: {
+				name: "Total Cryptocurrencies",
+				data: foundStats.coins_count,
+			},
+			totalExchanges: {
+				name: "Total Exchanges",
+				data: Object.keys(foundExchanges).length,
+			},
+			totalMarketCap: {
+				name: "Total Market Cap",
+				data: foundStats.total_mcap,
+			},
+			total24Volume: {
+				name: "Total 24h Volume",
+				data: foundStats.total_volume,
+			},
+			totalMarkets: {
+				name: "Total Markets",
+				data: foundStats.active_markets,
+			},
+		};
+
+		return {
+			props: {
+				stats,
+			},
+		};
+	} catch (err) {}
+}
