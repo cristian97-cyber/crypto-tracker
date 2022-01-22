@@ -6,9 +6,9 @@ import Tab from "@mui/material/Tab";
 import Link from "../Link";
 
 const DesktopNavigation = function (props) {
-	const { routes } = props;
+	const { routes, activeRoute } = props;
 
-	const [tabValue, setTabValue] = useState("/");
+	const [tabValue, setTabValue] = useState(activeRoute);
 
 	const handleChangeTab = function (_, newValue) {
 		setTabValue(newValue);
@@ -25,11 +25,11 @@ const DesktopNavigation = function (props) {
 		>
 			{routes.map(route => (
 				<Tab
-					key={route.link}
+					key={route.links[0]}
 					label={route.name}
-					value={route.link}
+					value={route.links[0]}
 					component={Link}
-					href={route.link}
+					href={route.links[0]}
 					sx={{
 						...theme.typography.tabs,
 						px: "1rem",

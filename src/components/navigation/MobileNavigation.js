@@ -16,7 +16,7 @@ import Link from "../Link";
 import Box from "@mui/material/Box";
 
 const MobileNavigation = function (props) {
-	const { routes, drawerOpen, toggleDrawer } = props;
+	const { routes, drawerOpen, toggleDrawer, activeRoute } = props;
 
 	const theme = useTheme();
 
@@ -46,24 +46,35 @@ const MobileNavigation = function (props) {
 				<Box sx={{ minHeight: theme.mixins.toolbar.minHeight + 30 }}></Box>
 				<List>
 					{routes.map(route => (
-						<ListItem key={route.link} disablePadding>
+						<ListItem key={route.links[0]} disablePadding>
 							<ListItemButton
 								component={Link}
-								href={route.link}
+								href={route.links[0]}
 								onClick={toggleDrawer}
-								selected={route.name === "Home" ? true : false}
+								selected={route.links[0] === activeRoute}
 								sx={{
 									py: "1rem",
 								}}
 							>
-								<ListItemIcon>
+								<ListItemIcon
+									sx={{
+										opacity: route.links[0] === activeRoute ? 1 : 0.7,
+									}}
+								>
 									{route.name === "Home" && <HomeIcon />}
 									{route.name === "Cryptocurrencies" && <PaidIcon />}
 									{route.name === "Exchanges" && <CurrencyExchangeIcon />}
 									{route.name === "News" && <NewspaperIcon />}
 								</ListItemIcon>
 								<ListItemText disableTypography>
-									<Typography variant="tabs">{route.name}</Typography>
+									<Typography
+										variant="tabs"
+										sx={{
+											opacity: route.links[0] === activeRoute ? 1 : 0.7,
+										}}
+									>
+										{route.name}
+									</Typography>
 								</ListItemText>
 							</ListItemButton>
 						</ListItem>

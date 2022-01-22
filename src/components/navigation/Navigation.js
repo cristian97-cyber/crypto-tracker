@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -21,19 +22,19 @@ import NavigationSearch from "./NavigationSearch";
 const routes = [
 	{
 		name: "Home",
-		link: "/",
+		links: ["/"],
 	},
 	{
 		name: "Cryptocurrencies",
-		link: "/cryptocurrencies",
+		links: ["/cryptocurrencies", "/cryptocurrencies/[id]"],
 	},
 	{
 		name: "Exchanges",
-		link: "/exchanges",
+		links: ["/exchanges"],
 	},
 	{
 		name: "News",
-		link: "/news",
+		links: ["/news"],
 	},
 ];
 
@@ -77,8 +78,14 @@ const ScrollTop = function (props) {
 };
 
 const Navigation = function (props) {
+	const router = useRouter();
+
+	let activeRoute;
+	routes.forEach(route => {
+		if (route.links.includes(router.pathname)) activeRoute = route.links[0];
+	});
+
 	const [drawerOpen, setDrawerOpen] = useState(false);
-	const [triggerBottom, setTriggerBottom] = useState(false);
 
 	const toggleDrawer = function (event) {
 		if (
@@ -144,7 +151,7 @@ const Navigation = function (props) {
 
 					{!downLg ? (
 						<>
-							<DesktopNavigation routes={routes} />
+							<DesktopNavigation routes={routes} activeRoute={activeRoute} />
 							<NavigationSearch />
 						</>
 					) : (
@@ -152,6 +159,7 @@ const Navigation = function (props) {
 							<NavigationSearch closeDrawer={closeDrawer} />
 							<MobileNavigation
 								routes={routes}
+								activeRoute={activeRoute}
 								drawerOpen={drawerOpen}
 								toggleDrawer={toggleDrawer}
 							/>
