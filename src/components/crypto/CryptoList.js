@@ -1,9 +1,14 @@
+import { useContext } from "react";
+
 import Grid from "@mui/material/Grid";
 
+import { LanguageContext } from "../../context/languageContext";
 import CryptoView from "./CryptoView";
 
 const CryptoList = function (props) {
-	const { cryptos, language } = props;
+	const { cryptos } = props;
+
+	const language = useContext(LanguageContext);
 
 	return (
 		<Grid container spacing={4}>

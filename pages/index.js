@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import Head from "next/head";
+import { LanguageContext } from "../src/context/languageContext";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -13,7 +15,9 @@ import sendHttp from "../src/sendHttp";
 import { STATS_API_URL, COINS_API_URL, EXCHANGES_API_URL } from "../src/config";
 
 const Index = function (props) {
-	const { language, stats, coins } = props;
+	const { stats, coins } = props;
+
+	const language = useContext(LanguageContext);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
@@ -96,10 +100,7 @@ const Index = function (props) {
 								Top 10 Cryptos In The World
 							</Typography>
 
-							<CryptoList
-								cryptos={coins.coinsList.slice(0, 10)}
-								language={language}
-							/>
+							<CryptoList cryptos={coins.coinsList.slice(0, 10)} />
 						</Container>
 					</Box>
 				</Grid>
@@ -182,6 +183,7 @@ export async function getStaticProps() {
 				stats,
 				coins,
 			},
+			revalidate: 60,
 		};
 	} catch (err) {}
 }
