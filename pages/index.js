@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import Head from "next/head";
 import { LanguageContext } from "../src/context/languageContext";
 
@@ -9,15 +9,95 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
+import useHttp from "../src/hooks/useHttp";
 import CryptoList from "../src/components/crypto/CryptoList";
 import NewsList from "../src/components/news/NewsList";
 import sendHttp from "../src/sendHttp";
-import { STATS_API_URL, COINS_API_URL, EXCHANGES_API_URL } from "../src/config";
+import {
+	STATS_API_URL,
+	COINS_API_URL,
+	EXCHANGES_API_URL,
+	NEWS_DB_URL,
+} from "../src/config";
+
+const DUMMY_NEWS = [
+	{
+		date: 1642951465000,
+		description:
+			"The central Asian country became No. 2 in the world for Bitcoin mining. But political turmoil and power cuts have hit hard, and the future looks bleak.",
+		image:
+			"https://media.wired.com/photos/61de2d453e654a13e9a16ef0/191:100/w_1280,c_limit/Business_Kazakhstan-2HDE52K.jpg",
+		source: "Wired",
+		title: "As Kazakhstan Descends into Chaos, Crypto Miners Are at a Loss",
+		url: "https://www.wired.com/story/kazakhstan-cryptocurrency-mining-unrest-energy/",
+	},
+	{
+		date: 1642346665000,
+		description:
+			"Block is working on building an “open Bitcoin mining system,” its CEO Jack Dorsey has announced. The company’s goals for the system are for it to be easily available, reliable, and relatively power efficient.",
+		image:
+			"https://cdn.vox-cdn.com/thumbor/NE548fVufAlHoBliurOdnG-lfuw=/0x215:3000x1786/fit-in/1200x630/cdn.vox-cdn.com/uploads/chorus_asset/file/23168502/1321753348.jpg",
+		source: "The Verge",
+		title: "Jack Dorsey’s Block is working to make Bitcoin mining easier",
+		url: 'https://www.theverge.com/2022/1/14/22883500/jack-dorsey-block-bitcoin-mining-system-open-source-mainstream"',
+	},
+	{
+		date: 1637076265000,
+		description:
+			"Block founder Jack Dorsey has announced on Twitter that the company is officially building an open bitcoin mining system. Dorsey first announced in October last year that the digital payments provider, then known as Square, was considering working on the proj…",
+		image:
+			"https://s.yimg.com/os/creatr-uploaded-images/2021-12/b08eca30-67a7-11ec-bfef-a5351ba20ef6",
+		source: "Engadget",
+		title:
+			"Block is officially building an 'open Bitcoin mining system,' says founder Jack Dorsey",
+		url: 'https://www.engadget.com/jack-dorseys-block-is-officially-building-an-open-bitcoin-mining-system-114033482.html"',
+	},
+];
 
 const Index = function (props) {
 	const { stats, coins } = props;
 
 	const language = useContext(LanguageContext);
+
+	const [news, setNews] = useState();
+
+	const [loading, sendHttpRequest] = useHttp();
+
+	useEffect(() => {
+		const getUpdatedNews = async function () {
+			const updatedNews = await sendHttpRequest(
+				"https://crypto-tracker-6391a-default-rtdb.firebaseio.com/news.json",
+				{
+					method: "PUT",
+					body: JSON.stringify(DUMMY_NEWS),
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			);
+
+			return updatedNews;
+		};
+
+		const getStoredNews = async function () {
+			let foundNews = await sendHttpRequest(`${NEWS_DB_URL}`);
+
+			if (foundNews) {
+				foundNews.sort((a, b) => b.date - a.date);
+
+				const actualTime = Date.now();
+				const latestTime = foundNews[0].date;
+				const timeDifference = (actualTime - latestTime) / 1000 / 60;
+
+				if (timeDifference >= 60) foundNews = await getUpdatedNews();
+			} else {
+				foundNews = await getUpdatedNews();
+			}
+
+			setNews(foundNews);
+		};
+		getStoredNews();
+	}, [sendHttpRequest]);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
@@ -114,7 +194,7 @@ const Index = function (props) {
 							>
 								Latest Cryptos News
 							</Typography>
-							<NewsList />
+							<NewsList loading={loading} news={news} />
 						</Container>
 					</Box>
 				</Grid>
@@ -126,14 +206,13 @@ const Index = function (props) {
 export default Index;
 
 export async function getStaticProps() {
-	let stats, coins;
 	try {
 		let foundStats = await sendHttp(STATS_API_URL);
 		foundStats = foundStats[0];
 
 		const foundExchanges = await sendHttp(EXCHANGES_API_URL);
 
-		stats = {
+		const stats = {
 			totalCryptos: {
 				name: "Total Cryptocurrencies",
 				data: foundStats.coins_count,
@@ -174,7 +253,7 @@ export async function getStaticProps() {
 			website: coin.websiteUrl ? coin.websiteUrl : "",
 		}));
 
-		coins = {
+		const coins = {
 			coinsList,
 		};
 
