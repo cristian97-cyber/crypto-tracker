@@ -1,3 +1,4 @@
+import { useTheme } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
@@ -8,6 +9,8 @@ import Box from "@mui/material/Box";
 
 const CryptoView = function (props) {
 	const { rank, name, icon, price, marketCap, dailyChange } = props;
+
+	const theme = useTheme();
 
 	return (
 		<Card sx={{ width: "100%" }}>
@@ -39,12 +42,39 @@ const CryptoView = function (props) {
 				<Divider />
 				<CardContent>
 					<Typography variant="body1" sx={{ mb: "0.75rem" }}>
-						Price: {price}
+						<Box
+							component="span"
+							sx={{ color: theme.palette.common.grey400, fontWeight: 500 }}
+						>
+							Price:{" "}
+						</Box>
+						{price}
 					</Typography>
 					<Typography variant="body1" sx={{ mb: "0.75rem" }}>
-						Market Cap: {marketCap}
+						<Box
+							component="span"
+							sx={{ color: theme.palette.common.grey400, fontWeight: 500 }}
+						>
+							Market Cap:{" "}
+						</Box>
+						{marketCap}
 					</Typography>
-					<Typography variant="body1">Daily Change: {dailyChange}</Typography>
+					<Typography
+						variant="body1"
+						sx={{
+							color: dailyChange.includes("+")
+								? theme.palette.success.main
+								: theme.palette.error.main,
+						}}
+					>
+						<Box
+							component="span"
+							sx={{ color: theme.palette.common.grey400, fontWeight: 500 }}
+						>
+							Daily Change:{" "}
+						</Box>
+						{dailyChange}
+					</Typography>
 				</CardContent>
 			</CardActionArea>
 		</Card>

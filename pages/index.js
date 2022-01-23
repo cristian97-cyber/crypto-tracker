@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import Head from "next/head";
 
 import { useTheme } from "@mui/material/styles";
@@ -11,16 +10,10 @@ import Box from "@mui/material/Box";
 import CryptoList from "../src/components/crypto/CryptoList";
 import NewsList from "../src/components/news/NewsList";
 import sendHttp from "../src/sendHttp";
-import { STATS_API_URL, EXCHANGES_API_URL } from "../src/config";
+import { STATS_API_URL, COINS_API_URL, EXCHANGES_API_URL } from "../src/config";
 
 const Index = function (props) {
-	const { stats } = props;
-
-	const [language, setLanguage] = useState("en-US");
-
-	useEffect(() => {
-		setLanguage(navigator.language);
-	}, []);
+	const { language, stats, coins } = props;
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
@@ -102,7 +95,11 @@ const Index = function (props) {
 							>
 								Top 10 Cryptos In The World
 							</Typography>
-							<CryptoList />
+
+							<CryptoList
+								cryptos={coins.coinsList.slice(0, 10)}
+								language={language}
+							/>
 						</Container>
 					</Box>
 				</Grid>
@@ -128,7 +125,7 @@ const Index = function (props) {
 export default Index;
 
 export async function getStaticProps() {
-	let stats;
+	let stats, coins;
 	try {
 		let foundStats = await sendHttp(STATS_API_URL);
 		foundStats = foundStats[0];
@@ -158,9 +155,32 @@ export async function getStaticProps() {
 			},
 		};
 
+		let foundCoins = await sendHttp(
+			`${COINS_API_URL}&limit=${foundStats.coins_count}`
+		);
+		foundCoins = foundCoins.coins;
+
+		const coinsList = foundCoins.map(coin => ({
+			id: coin.id,
+			name: coin.name,
+			symbol: coin.symbol,
+			rank: coin.rank,
+			icon: coin.icon,
+			price: coin.price,
+			marketCap: coin.marketCap,
+			dailyChange: coin.priceChange1d,
+			volume: coin.volume,
+			website: coin.websiteUrl ? coin.websiteUrl : "",
+		}));
+
+		coins = {
+			coinsList,
+		};
+
 		return {
 			props: {
 				stats,
+				coins,
 			},
 		};
 	} catch (err) {}

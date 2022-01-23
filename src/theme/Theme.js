@@ -60,6 +60,7 @@ const theme = createTheme({
 		mode: "dark",
 		common: {
 			orange: appOrange,
+			grey400: grey400,
 			surface5:
 				"linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05))",
 			surface9:

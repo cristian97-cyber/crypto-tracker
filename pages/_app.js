@@ -15,6 +15,12 @@ const clientSideEmotionCache = createEmotionCache();
 export default function MyApp(props) {
 	const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
+	const [language, setLanguage] = React.useState("en-US");
+
+	React.useEffect(() => {
+		setLanguage(navigator.language);
+	}, []);
+
 	return (
 		<CacheProvider value={emotionCache}>
 			<Head>
@@ -26,7 +32,7 @@ export default function MyApp(props) {
 				<CssBaseline />
 
 				<Navigation />
-				<Component {...pageProps} />
+				<Component {...pageProps} language={language} />
 			</ThemeProvider>
 		</CacheProvider>
 	);
