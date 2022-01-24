@@ -8,6 +8,8 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
+import Backdrop from "@mui/material/Backdrop";
+import Alert from "@mui/material/Alert";
 
 import useHttp from "../src/hooks/useHttp";
 import CryptoList from "../src/components/crypto/CryptoList";
@@ -55,52 +57,81 @@ const DUMMY_NEWS = [
 ];
 
 const Index = function (props) {
-	const { stats, coins } = props;
+	const { stats, coins, error } = props;
 
 	const language = useContext(LanguageContext);
 
 	const [news, setNews] = useState();
 
-	const [loading, sendHttpRequest] = useHttp();
+	const [loading, httpError, sendHttpRequest] = useHttp();
+
+	const getUpdatedNews = async function () {
+		const updatedNews = await sendHttpRequest(
+			`${NEWS_DB_URL}`,
+			{
+				method: "PUT",
+				body: JSON.stringify(DUMMY_NEWS),
+				headers: {
+					"Content-Type": "application/json",
+				},
+			},
+			"Unable to retrieve the latest news"
+		);
+
+		return updatedNews;
+	};
+
+	const getStoredNews = async function () {
+		let foundNews = await sendHttpRequest(
+			`${NEWS_DB_URL}`,
+			"Unable to retrieve the latest news"
+		);
+
+		if (foundNews) {
+			foundNews.sort((a, b) => b.date - a.date);
+
+			const actualTime = Date.now();
+			const latestTime = foundNews[0].date;
+			const timeDifference = (actualTime - latestTime) / 1000 / 60;
+
+			if (timeDifference >= 60) foundNews = await getUpdatedNews();
+		} else {
+			foundNews = await getUpdatedNews();
+		}
+
+		if (foundNews) setNews(foundNews);
+	};
 
 	useEffect(() => {
-		const getUpdatedNews = async function () {
-			const updatedNews = await sendHttpRequest(
-				"https://crypto-tracker-6391a-default-rtdb.firebaseio.com/news.json",
-				{
-					method: "PUT",
-					body: JSON.stringify(DUMMY_NEWS),
-					headers: {
-						"Content-Type": "application/json",
-					},
-				}
-			);
-
-			return updatedNews;
-		};
-
-		const getStoredNews = async function () {
-			let foundNews = await sendHttpRequest(`${NEWS_DB_URL}`);
-
-			if (foundNews) {
-				foundNews.sort((a, b) => b.date - a.date);
-
-				const actualTime = Date.now();
-				const latestTime = foundNews[0].date;
-				const timeDifference = (actualTime - latestTime) / 1000 / 60;
-
-				if (timeDifference >= 60) foundNews = await getUpdatedNews();
-			} else {
-				foundNews = await getUpdatedNews();
-			}
-
-			setNews(foundNews);
-		};
 		getStoredNews();
 	}, [sendHttpRequest]);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
+
+	if (error)
+		return (
+			<Backdrop
+				open={true}
+				sx={{
+					zIndex: theme.zIndex.appBar + 1,
+				}}
+			>
+				<Alert
+					severity="error"
+					sx={{
+						justifyContent: "center",
+						width: "50%",
+
+						[theme.breakpoints.down("md")]: {
+							width: "90%",
+						},
+					}}
+				>
+					<Typography variant="body1">{error}</Typography>
+				</Alert>
+			</Backdrop>
+		);
 
 	return (
 		<>
@@ -194,7 +225,18 @@ const Index = function (props) {
 							>
 								Latest Cryptos News
 							</Typography>
-							<NewsList loading={loading} news={news} />
+							{!httpError && <NewsList loading={loading} news={news} />}
+							{!loading && httpError && (
+								<Alert
+									severity="error"
+									sx={{
+										justifyContent: "center",
+										width: "100%",
+									}}
+								>
+									<Typography variant="body1">{httpError}</Typography>
+								</Alert>
+							)}
 						</Container>
 					</Box>
 				</Grid>
@@ -264,5 +306,11 @@ export async function getStaticProps() {
 			},
 			revalidate: 60,
 		};
-	} catch (err) {}
+	} catch (err) {
+		return {
+			props: {
+				error: "The site is temporarily unreachable",
+			},
+		};
+	}
 }
