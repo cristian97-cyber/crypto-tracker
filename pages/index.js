@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
 
 import useHttp from "../src/hooks/useHttp";
 import CryptoList from "../src/components/crypto/CryptoList";
@@ -19,42 +20,9 @@ import {
 	STATS_API_URL,
 	COINS_API_URL,
 	EXCHANGES_API_URL,
+	NEWS_API_URL,
 	NEWS_DB_URL,
 } from "../src/config";
-
-const DUMMY_NEWS = [
-	{
-		date: 1642951465000,
-		description:
-			"The central Asian country became No. 2 in the world for Bitcoin mining. But political turmoil and power cuts have hit hard, and the future looks bleak.",
-		image:
-			"https://media.wired.com/photos/61de2d453e654a13e9a16ef0/191:100/w_1280,c_limit/Business_Kazakhstan-2HDE52K.jpg",
-		source: "Wired",
-		title: "As Kazakhstan Descends into Chaos, Crypto Miners Are at a Loss",
-		url: "https://www.wired.com/story/kazakhstan-cryptocurrency-mining-unrest-energy/",
-	},
-	{
-		date: 1642346665000,
-		description:
-			"Block is working on building an “open Bitcoin mining system,” its CEO Jack Dorsey has announced. The company’s goals for the system are for it to be easily available, reliable, and relatively power efficient.",
-		image:
-			"https://cdn.vox-cdn.com/thumbor/NE548fVufAlHoBliurOdnG-lfuw=/0x215:3000x1786/fit-in/1200x630/cdn.vox-cdn.com/uploads/chorus_asset/file/23168502/1321753348.jpg",
-		source: "The Verge",
-		title: "Jack Dorsey’s Block is working to make Bitcoin mining easier",
-		url: 'https://www.theverge.com/2022/1/14/22883500/jack-dorsey-block-bitcoin-mining-system-open-source-mainstream"',
-	},
-	{
-		date: 1637076265000,
-		description:
-			"Block founder Jack Dorsey has announced on Twitter that the company is officially building an open bitcoin mining system. Dorsey first announced in October last year that the digital payments provider, then known as Square, was considering working on the proj…",
-		image:
-			"https://s.yimg.com/os/creatr-uploaded-images/2021-12/b08eca30-67a7-11ec-bfef-a5351ba20ef6",
-		source: "Engadget",
-		title:
-			"Block is officially building an 'open Bitcoin mining system,' says founder Jack Dorsey",
-		url: 'https://www.engadget.com/jack-dorseys-block-is-officially-building-an-open-bitcoin-mining-system-114033482.html"',
-	},
-];
 
 const Index = function (props) {
 	const { stats, coins, error } = props;
@@ -66,13 +34,45 @@ const Index = function (props) {
 	const [loading, httpError, sendHttpRequest] = useHttp();
 
 	const getUpdatedNews = async function () {
-		const updatedNews = await sendHttpRequest(
-			`${NEWS_DB_URL}`,
+		let updatedNews = [];
+
+		for (let page = 0; page < 1; page++) {
+			const foundNews = await sendHttpRequest(
+				{
+					url: `${NEWS_API_URL}&page=${page}`,
+				},
+				"Unable to retrieve the latest news"
+			);
+			if (!foundNews) break;
+
+			foundNews.results.forEach(res => {
+				if (res.image_url) {
+					updatedNews.push({
+						url: res.link,
+						title: res.title,
+						description: res.description,
+						image: res.image_url,
+						source:
+							res.source_id.charAt(0).toUpperCase() + res.source_id.slice(1),
+						date: new Date(res.pubDate).getTime(),
+						updateDate: Date.now(),
+					});
+				}
+			});
+			if (!foundNews.nextPage) break;
+		}
+
+		if (updatedNews.length === 0) return;
+
+		updatedNews = await sendHttpRequest(
 			{
-				method: "PUT",
-				body: JSON.stringify(DUMMY_NEWS),
-				headers: {
-					"Content-Type": "application/json",
+				url: `${NEWS_DB_URL}`,
+				params: {
+					method: "PUT",
+					body: JSON.stringify(updatedNews),
+					headers: {
+						"Content-Type": "application/json",
+					},
 				},
 			},
 			"Unable to retrieve the latest news"
@@ -83,18 +83,19 @@ const Index = function (props) {
 
 	const getStoredNews = async function () {
 		let foundNews = await sendHttpRequest(
-			`${NEWS_DB_URL}`,
+			{
+				url: `${NEWS_DB_URL}`,
+			},
 			"Unable to retrieve the latest news"
 		);
 
 		if (foundNews) {
-			foundNews.sort((a, b) => b.date - a.date);
-
 			const actualTime = Date.now();
-			const latestTime = foundNews[0].date;
-			const timeDifference = (actualTime - latestTime) / 1000 / 60;
-
+			const lastUpdateTime = foundNews[0].updateDate;
+			const timeDifference = (actualTime - lastUpdateTime) / 1000 / 60;
 			if (timeDifference >= 60) foundNews = await getUpdatedNews();
+
+			if (foundNews) foundNews.sort((a, b) => b.date - a.date);
 		} else {
 			foundNews = await getUpdatedNews();
 		}
@@ -225,12 +226,21 @@ const Index = function (props) {
 							>
 								Latest Cryptos News
 							</Typography>
-							{!httpError && <NewsList loading={loading} news={news} />}
+							{!httpError && (
+								<NewsList
+									loading={loading}
+									news={news ? news.slice(0, 6) : undefined}
+								/>
+							)}
 							{!loading && httpError && (
 								<Alert
 									severity="error"
+									action={
+										<Button color="inherit" onClick={getStoredNews}>
+											Try again
+										</Button>
+									}
 									sx={{
-										justifyContent: "center",
 										width: "100%",
 									}}
 								>

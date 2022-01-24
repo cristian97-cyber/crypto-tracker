@@ -4,12 +4,12 @@ const useHttp = function () {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 
-	const sendHttpRequest = useCallback(async (url, params, errorMsg) => {
+	const sendHttpRequest = useCallback(async (req, errorMsg) => {
 		setLoading(true);
 		setError("");
 
 		try {
-			const res = await fetch(url, params);
+			const res = await fetch(req.url, req.params);
 			if (!res.ok) throw new Error(errorMsg);
 
 			const data = await res.json();

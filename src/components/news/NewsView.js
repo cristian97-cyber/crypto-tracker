@@ -38,6 +38,7 @@ const NewsView = function (props) {
 						height={200}
 						alt="News image"
 						effect="opacity"
+						threshold={300}
 						style={{ objectFit: "cover" }}
 					/>
 				</CardMedia>
