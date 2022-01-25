@@ -1,6 +1,5 @@
 import { useContext, useState, useEffect } from "react";
 import Head from "next/head";
-import { LanguageContext } from "../src/context/languageContext";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -12,17 +11,12 @@ import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 
+import { LanguageContext } from "../src/context/languageContext";
 import useHttp from "../src/hooks/useHttp";
 import CryptoList from "../src/components/crypto/CryptoList";
 import NewsList from "../src/components/news/NewsList";
-import sendHttp from "../src/sendHttp";
-import {
-	STATS_API_URL,
-	COINS_API_URL,
-	EXCHANGES_API_URL,
-	NEWS_API_URL,
-	NEWS_DB_URL,
-} from "../src/config";
+import { getStatsAndCoins } from "../src/helpers";
+import { NEWS_API_URL, NEWS_DB_URL } from "../src/config";
 
 const Index = function (props) {
 	const { stats, coins, error } = props;
@@ -259,55 +253,7 @@ export default Index;
 
 export async function getStaticProps() {
 	try {
-		let foundStats = await sendHttp(STATS_API_URL);
-		foundStats = foundStats[0];
-
-		const foundExchanges = await sendHttp(EXCHANGES_API_URL);
-
-		const stats = {
-			totalCryptos: {
-				name: "Total Cryptocurrencies",
-				data: foundStats.coins_count,
-			},
-			totalExchanges: {
-				name: "Total Exchanges",
-				data: Object.keys(foundExchanges).length,
-			},
-			totalMarketCap: {
-				name: "Total Market Cap",
-				data: foundStats.total_mcap,
-			},
-			total24Volume: {
-				name: "Total 24h Volume",
-				data: foundStats.total_volume,
-			},
-			totalMarkets: {
-				name: "Total Markets",
-				data: foundStats.active_markets,
-			},
-		};
-
-		let foundCoins = await sendHttp(
-			`${COINS_API_URL}&limit=${foundStats.coins_count}`
-		);
-		foundCoins = foundCoins.coins;
-
-		const coinsList = foundCoins.map(coin => ({
-			id: coin.id,
-			name: coin.name,
-			symbol: coin.symbol,
-			rank: coin.rank,
-			icon: coin.icon,
-			price: coin.price,
-			marketCap: coin.marketCap,
-			dailyChange: coin.priceChange1d,
-			volume: coin.volume,
-			website: coin.websiteUrl ? coin.websiteUrl : "",
-		}));
-
-		const coins = {
-			coinsList,
-		};
+		const { stats, coins } = await getStatsAndCoins();
 
 		return {
 			props: {
