@@ -36,7 +36,7 @@ const Index = function (props) {
 	const getUpdatedNews = async function () {
 		let updatedNews = [];
 
-		for (let page = 0; page < 1; page++) {
+		for (let page = 0; page < 6; page++) {
 			const foundNews = await sendHttpRequest(
 				{
 					url: `${NEWS_API_URL}&page=${page}`,
