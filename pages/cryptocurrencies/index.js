@@ -112,7 +112,7 @@ export async function getStaticProps() {
 	} catch (err) {
 		return {
 			props: {
-				error: "The site is temporarily unreachable",
+				error: "This page is temporarily unreachable",
 			},
 		};
 	}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 import { visuallyHidden } from "@mui/utils";
 import TableContainer from "@mui/material/TableContainer";
@@ -11,27 +11,30 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import TablePagination from "@mui/material/TablePagination";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
+import Link from "@mui/material/Link";
+
+import { LanguageContext } from "../../context/languageContext";
 
 const headCells = [
 	{
-		id: "name",
+		id: "rank",
 		disablePadding: true,
+		label: "Rank",
+	},
+	{
+		id: "name",
+		disablePadding: false,
 		label: "Name",
 	},
 	{
 		id: "tradeVolume",
 		disablePadding: false,
-		label: "24th Trade Volume",
+		label: "Volume (24h)",
 	},
 	{
-		id: "markets",
+		id: "url",
 		disablePadding: false,
-		label: "Markets",
-	},
-	{
-		id: "change",
-		disablePadding: false,
-		label: "Change",
+		label: "Url",
 	},
 ];
 
@@ -85,11 +88,12 @@ const EnhancedTableHead = function (props) {
 };
 
 const ExchangesTable = function (props) {
-	const { data } = props;
+	const { data, page, setPage } = props;
+
+	const language = useContext(LanguageContext);
 
 	const [order, setOrder] = useState("asc");
-	const [orderBy, setOrderBy] = useState("name");
-	const [page, setPage] = useState(0);
+	const [orderBy, setOrderBy] = useState("rank");
 	const [rowsPerPage, setRowsPerPage] = useState(5);
 
 	const handleRequestSort = function (_, property) {
@@ -132,14 +136,39 @@ const ExchangesTable = function (props) {
 							.sort(getComparator(order, orderBy))
 							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 							.map(row => {
+								const nf = new Intl.NumberFormat(language, {
+									style: "currency",
+									currency: "USD",
+									currencyDisplay: "narrowSymbol",
+									notation: "compact",
+								});
+
+								const tradeVolume =
+									row.tradeVolume !== undefined
+										? nf.format(row.tradeVolume)
+										: undefined;
+
 								return (
 									<TableRow key={row.name} hover>
 										<TableCell component="th" scope="row" padding="none">
-											{row.name}
+											{row.rank}
 										</TableCell>
-										<TableCell>{row.tradeVolume}</TableCell>
-										<TableCell>{row.markets}</TableCell>
-										<TableCell>{row.change}</TableCell>
+										<TableCell>{row.name}</TableCell>
+										<TableCell>{tradeVolume ? tradeVolume : "N/A"}</TableCell>
+										<TableCell>
+											{row.url ? (
+												<Link
+													href={row.url}
+													underline="hover"
+													target="_blank"
+													rel="noreferrer"
+												>
+													{row.url}
+												</Link>
+											) : (
+												"N/A"
+											)}
+										</TableCell>
 									</TableRow>
 								);
 							})}

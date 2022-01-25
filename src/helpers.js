@@ -61,4 +61,24 @@ const getStatsAndCoins = async function () {
 	return { stats, coins };
 };
 
-export { getStatsAndCoins };
+const getExchanges = async function () {
+	let foundExchanges = await sendHttp(EXCHANGES_API_URL);
+	foundExchanges = Object.values(foundExchanges);
+	foundExchanges.sort((a, b) => b.volume_usd - a.volume_usd);
+
+	let rank = 0;
+	const exchanges = foundExchanges.map(ex => {
+		rank++;
+
+		return {
+			rank,
+			name: ex.name,
+			tradeVolume: ex.volume_usd,
+			url: ex.url,
+		};
+	});
+
+	return exchanges;
+};
+
+export { getStatsAndCoins, getExchanges };

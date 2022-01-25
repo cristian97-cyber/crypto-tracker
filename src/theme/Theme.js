@@ -21,15 +21,6 @@ const theme = createTheme({
 				},
 			},
 		},
-		MuiTableBody: {
-			styleOverrides: {
-				root: {
-					"& .MuiTableRow-root": {
-						cursor: "pointer",
-					},
-				},
-			},
-		},
 		MuiTableCell: {
 			styleOverrides: {
 				root: {
