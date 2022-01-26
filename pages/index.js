@@ -153,7 +153,22 @@ const Index = function (props) {
 										</Button>
 									}
 									sx={{
+										alignItems: "center",
 										width: "100%",
+
+										[theme.breakpoints.down("sm")]: {
+											flexDirection: "column",
+											textAlign: "center",
+
+											"& .MuiAlert-icon": {
+												mr: 0,
+											},
+
+											"& .MuiAlert-action": {
+												pl: 0,
+												ml: 0,
+											},
+										},
 									}}
 								>
 									<Typography variant="body1">{newsError}</Typography>

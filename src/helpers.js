@@ -2,6 +2,7 @@ import {
 	STATS_API_URL,
 	EXCHANGES_API_URL,
 	COINS_API_URL,
+	COIN_API_URL,
 	NEWS_API_URL,
 	NEWS_DB_URL,
 } from "./config";
@@ -65,6 +66,23 @@ const getStatsAndCoins = async function () {
 	};
 
 	return { stats, coins };
+};
+
+const getCoin = async function (id) {
+	let coin = await sendHttp(`${COIN_API_URL}/${id}?currency=USD`);
+	coin = coin.coin;
+
+	return {
+		name: coin.name,
+		icon: coin.icon,
+		symbol: coin.symbol,
+		rank: coin.rank,
+		price: coin.price,
+		dailyChange: coin.priceChange1d,
+		volume: coin.volume,
+		marketCap: coin.marketCap,
+		websiteUrl: coin.websiteUrl ? coin.websiteUrl : "",
+	};
 };
 
 const getExchanges = async function () {
@@ -144,4 +162,4 @@ const getStoredNews = async function () {
 	return foundNews;
 };
 
-export { getStatsAndCoins, getExchanges, getStoredNews };
+export { getStatsAndCoins, getCoin, getExchanges, getStoredNews };

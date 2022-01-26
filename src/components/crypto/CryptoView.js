@@ -7,14 +7,16 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
+import Link from "../Link";
+
 const CryptoView = function (props) {
-	const { rank, name, icon, price, marketCap, dailyChange } = props;
+	const { id, rank, name, icon, price, marketCap, dailyChange } = props;
 
 	const theme = useTheme();
 
 	return (
 		<Card sx={{ width: "100%" }}>
-			<CardActionArea>
+			<CardActionArea component={Link} href={`/cryptocurrencies/${id}`}>
 				<CardContent>
 					<Grid
 						container
