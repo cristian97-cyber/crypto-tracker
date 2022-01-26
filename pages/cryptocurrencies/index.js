@@ -19,15 +19,6 @@ const Cryptocurrencies = function (props) {
 
 	const router = useRouter();
 
-	const page = router.query.page ? +router.query.page : 1;
-	const numItems = coins.coinsList.length;
-	const itemsPerPage = 12;
-	const numPages = Math.ceil(numItems / itemsPerPage);
-
-	const changePage = function (newPage) {
-		router.push(`${router.pathname}?page=${newPage}`);
-	};
-
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
 	const downSm = useMediaQuery(theme.breakpoints.down("sm"));
@@ -57,6 +48,15 @@ const Cryptocurrencies = function (props) {
 			</Backdrop>
 		);
 
+	const page = router.query.page ? +router.query.page : 1;
+	const numItems = coins.coinsList.length;
+	const itemsPerPage = 12;
+	const numPages = Math.ceil(numItems / itemsPerPage);
+
+	const changePage = function (newPage) {
+		router.push(`${router.pathname}?page=${newPage}`);
+	};
+
 	return (
 		<>
 			<Head>
@@ -74,7 +74,7 @@ const Cryptocurrencies = function (props) {
 							<CryptoList
 								cryptos={coins.coinsList.slice(
 									(page - 1) * itemsPerPage,
-									(page - 1) * itemsPerPage + itemsPerPage
+									page * itemsPerPage
 								)}
 							/>
 						</Grid>
@@ -87,7 +87,7 @@ const Cryptocurrencies = function (props) {
 										size={!downSm ? "large" : !down300 ? "medium" : "small"}
 										siblingCount={!downSm ? 1 : 0}
 										page={page}
-										onChange={(event, page) => changePage(page)}
+										onChange={(_, page) => changePage(page)}
 									/>
 								</Grid>
 							</Grid>

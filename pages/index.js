@@ -1,5 +1,6 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -12,99 +13,21 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 
 import { LanguageContext } from "../src/context/languageContext";
-import useHttp from "../src/hooks/useHttp";
 import CryptoList from "../src/components/crypto/CryptoList";
 import NewsList from "../src/components/news/NewsList";
-import { getStatsAndCoins } from "../src/helpers";
-import { NEWS_API_URL, NEWS_DB_URL } from "../src/config";
+import { getStatsAndCoins, getStoredNews } from "../src/helpers";
 
 const Index = function (props) {
-	const { stats, coins, error } = props;
+	const { stats, coins, news, generalError, newsError } = props;
 
 	const language = useContext(LanguageContext);
 
-	const [news, setNews] = useState();
-
-	const [loading, httpError, sendHttpRequest] = useHttp();
-
-	const getUpdatedNews = async function () {
-		let updatedNews = [];
-
-		for (let page = 0; page < 6; page++) {
-			const foundNews = await sendHttpRequest(
-				{
-					url: `${NEWS_API_URL}&page=${page}`,
-				},
-				"Unable to retrieve the latest news"
-			);
-			if (!foundNews) break;
-
-			foundNews.results.forEach(res => {
-				if (res.image_url) {
-					updatedNews.push({
-						url: res.link,
-						title: res.title,
-						description: res.description,
-						image: res.image_url,
-						source:
-							res.source_id.charAt(0).toUpperCase() + res.source_id.slice(1),
-						date: new Date(res.pubDate).getTime(),
-						updateDate: Date.now(),
-					});
-				}
-			});
-			if (!foundNews.nextPage) break;
-		}
-
-		if (updatedNews.length === 0) return;
-
-		updatedNews = await sendHttpRequest(
-			{
-				url: `${NEWS_DB_URL}`,
-				params: {
-					method: "PUT",
-					body: JSON.stringify(updatedNews),
-					headers: {
-						"Content-Type": "application/json",
-					},
-				},
-			},
-			"Unable to retrieve the latest news"
-		);
-
-		return updatedNews;
-	};
-
-	const getStoredNews = async function () {
-		let foundNews = await sendHttpRequest(
-			{
-				url: `${NEWS_DB_URL}`,
-			},
-			"Unable to retrieve the latest news"
-		);
-
-		if (foundNews) {
-			const actualTime = Date.now();
-			const lastUpdateTime = foundNews[0].updateDate;
-			const timeDifference = (actualTime - lastUpdateTime) / 1000 / 60;
-			if (timeDifference >= 60) foundNews = await getUpdatedNews();
-
-			if (foundNews) foundNews.sort((a, b) => b.date - a.date);
-		} else {
-			foundNews = await getUpdatedNews();
-		}
-
-		if (foundNews) setNews(foundNews);
-	};
-
-	useEffect(() => {
-		getStoredNews();
-	}, [sendHttpRequest]);
+	const router = useRouter();
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
 
-	if (error)
+	if (generalError)
 		return (
 			<Backdrop
 				open={true}
@@ -123,7 +46,7 @@ const Index = function (props) {
 						},
 					}}
 				>
-					<Typography variant="body1">{error}</Typography>
+					<Typography variant="body1">{generalError}</Typography>
 				</Alert>
 			</Backdrop>
 		);
@@ -220,17 +143,12 @@ const Index = function (props) {
 							>
 								Latest Cryptos News
 							</Typography>
-							{!httpError && (
-								<NewsList
-									loading={loading}
-									news={news ? news.slice(0, 6) : undefined}
-								/>
-							)}
-							{!loading && httpError && (
+							{!newsError && <NewsList news={news.slice(0, 6)} />}
+							{newsError && (
 								<Alert
 									severity="error"
 									action={
-										<Button color="inherit" onClick={getStoredNews}>
+										<Button color="inherit" onClick={() => router.reload()}>
 											Try again
 										</Button>
 									}
@@ -238,7 +156,7 @@ const Index = function (props) {
 										width: "100%",
 									}}
 								>
-									<Typography variant="body1">{httpError}</Typography>
+									<Typography variant="body1">{newsError}</Typography>
 								</Alert>
 							)}
 						</Container>
@@ -252,20 +170,37 @@ const Index = function (props) {
 export default Index;
 
 export async function getStaticProps() {
+	let stats, coins;
+
 	try {
-		const { stats, coins } = await getStatsAndCoins();
+		const { stats: foundStats, coins: foundCoins } = await getStatsAndCoins();
+		stats = foundStats;
+		coins = foundCoins;
+
+		const news = await getStoredNews();
 
 		return {
 			props: {
 				stats,
 				coins,
+				news,
 			},
 			revalidate: 60,
 		};
 	} catch (err) {
+		if (stats && coins) {
+			return {
+				props: {
+					stats,
+					coins,
+					newsError: "Impossible to retrieve te latest news",
+				},
+			};
+		}
+
 		return {
 			props: {
-				error: "This page is temporarily unreachable",
+				generalError: "This page is temporarily unreachable",
 			},
 		};
 	}
