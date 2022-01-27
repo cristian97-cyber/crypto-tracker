@@ -98,7 +98,7 @@ const Navigation = function (props) {
 		router.events.on("routeChangeStart", handleRouteChange);
 
 		return () => router.events.off("routeChangeStart", handleRouteChange);
-	}, []);
+	}, [router]);
 
 	const toggleDrawer = function (event) {
 		if (

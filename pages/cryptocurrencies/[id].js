@@ -58,7 +58,7 @@ const CryptocurrencyDetail = function (props) {
 			setChartData(data);
 		};
 		getHistoricalData();
-	}, [interval]);
+	}, [router, interval, sendHttpRequest]);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
