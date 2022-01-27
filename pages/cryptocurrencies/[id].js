@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
@@ -12,11 +12,18 @@ import Link from "@mui/material/Link";
 import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { LanguageContext } from "../../src/context/languageContext";
 import MarketsTable from "../../src/components/crypto/MarketsTable";
 import CryptoHistorical from "../../src/components/crypto/CryptoHistorical";
 import { getStatsAndCoins, getCoin, getMarkets } from "../../src/helpers";
+import useHttp from "../../src/hooks/use-http";
+import { HISTORICAL_API_URL } from "../../src/config";
 
 const chartData = [1200, 1300, 1500, 1000, 900, 2000, 2500];
 
@@ -26,6 +33,32 @@ const CryptocurrencyDetail = function (props) {
 	const router = useRouter();
 
 	const language = useContext(LanguageContext);
+
+	const [interval, setInterval] = useState("1w");
+	const [chartData, setChartData] = useState([]);
+
+	const { loading, error: httpError, sendHttpRequest } = useHttp();
+
+	useEffect(() => {
+		const getHistoricalData = async function () {
+			let data = await sendHttpRequest(
+				{
+					url: `${HISTORICAL_API_URL}?period=${interval}&coinId=${router.query.id}&currency=USD`,
+				},
+				"Unable to retrieve historical data"
+			);
+			if (!data) return;
+
+			data = data.chart.map(d => d[1]);
+
+			const productFactor = Math.floor(data.length / 7);
+			const positions = [0, 1, 2, 3, 4, 5, 6].map(num => num * productFactor);
+			data = data.filter((_, i) => positions.includes(i));
+
+			setChartData(data);
+		};
+		getHistoricalData();
+	}, [interval]);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
@@ -223,7 +256,54 @@ const CryptocurrencyDetail = function (props) {
 							>
 								Historical Price Chart
 							</Typography>
-							<CryptoHistorical data={chartData} />
+							<Grid container justifyContent="flex-end" sx={{ mb: "2rem" }}>
+								<Grid item>
+									<FormControl
+										sx={{
+											width: "15rem",
+
+											[theme.breakpoints.down("sm")]: {
+												width: "10rem",
+											},
+										}}
+									>
+										<InputLabel id="historical-interval">Interval</InputLabel>
+										<Select
+											labelId="historical-interval"
+											id="select-interval"
+											label="Interval"
+											value={interval}
+											onChange={e => setInterval(e.target.value)}
+										>
+											<MenuItem value="24h">Daily</MenuItem>
+											<MenuItem value="1w">Weekly</MenuItem>
+											<MenuItem value="1m">Monthly</MenuItem>
+											<MenuItem value="3m">Three months</MenuItem>
+											<MenuItem value="6m">Six months</MenuItem>
+											<MenuItem value="1y">Annual</MenuItem>
+										</Select>
+									</FormControl>
+								</Grid>
+							</Grid>
+							{loading && (
+								<Grid container justifyContent="center">
+									<Grid item>
+										<CircularProgress />
+									</Grid>
+								</Grid>
+							)}
+							{!loading && httpError && (
+								<Alert
+									severity="error"
+									sx={{
+										justifyContent: "center",
+										width: "100%",
+									}}
+								>
+									<Typography variant="body1">{httpError}</Typography>
+								</Alert>
+							)}
+							{!loading && !error && <CryptoHistorical data={chartData} />}
 						</Container>
 					</Box>
 				</Grid>
