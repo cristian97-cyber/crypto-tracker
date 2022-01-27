@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 import { useTheme } from "@mui/material/styles";
@@ -80,12 +80,25 @@ const ScrollTop = function (props) {
 const Navigation = function (props) {
 	const router = useRouter();
 
-	let activeRoute;
+	let initialRoute;
 	routes.forEach(route => {
-		if (route.links.includes(router.pathname)) activeRoute = route.links[0];
+		if (route.links.includes(router.pathname)) initialRoute = route.links[0];
 	});
 
+	const [activeRoute, setActiveRoute] = useState(initialRoute);
 	const [drawerOpen, setDrawerOpen] = useState(false);
+
+	useEffect(() => {
+		const handleRouteChange = function (url) {
+			routes.forEach(route => {
+				if (route.links.includes(url)) setActiveRoute(route.links[0]);
+			});
+		};
+
+		router.events.on("routeChangeStart", handleRouteChange);
+
+		return () => router.events.off("routeChangeStart", handleRouteChange);
+	}, []);
 
 	const toggleDrawer = function (event) {
 		if (

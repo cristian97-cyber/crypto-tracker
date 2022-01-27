@@ -33,7 +33,7 @@ const CryptoView = function (props) {
 							<Box
 								component="img"
 								src={icon}
-								alt="Currency icon"
+								alt={`${name} icon`}
 								sx={{
 									height: "2rem",
 								}}
