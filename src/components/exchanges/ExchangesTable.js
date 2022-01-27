@@ -39,8 +39,15 @@ const headCells = [
 ];
 
 const descendingComparator = function (a, b, orderBy) {
-	if (b[orderBy] < a[orderBy]) return -1;
-	if (b[orderBy] > a[orderBy]) return 1;
+	let aData = a[orderBy];
+	let bData = b[orderBy];
+	if (typeof aData === "string") {
+		aData = aData.toLowerCase();
+		bData = bData.toLowerCase();
+	}
+
+	if (bData < aData) return -1;
+	if (bData > aData) return 1;
 
 	return 0;
 };

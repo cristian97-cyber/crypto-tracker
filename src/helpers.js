@@ -3,6 +3,7 @@ import {
 	EXCHANGES_API_URL,
 	COINS_API_URL,
 	COIN_API_URL,
+	MARKETS_API_URL,
 	NEWS_API_URL,
 	NEWS_DB_URL,
 } from "./config";
@@ -78,11 +79,24 @@ const getCoin = async function (id) {
 		symbol: coin.symbol,
 		rank: coin.rank,
 		price: coin.price,
-		dailyChange: coin.priceChange1d,
-		volume: coin.volume,
-		marketCap: coin.marketCap,
+		dailyChange: coin.priceChange1d ? coin.priceChange1d : 0,
+		volume: coin.volume ? coin.volume : 0,
+		marketCap: coin.marketCap ? coin.marketCap : 0,
 		websiteUrl: coin.websiteUrl ? coin.websiteUrl : "",
 	};
+};
+
+const getMarkets = async function (id) {
+	const markets = await sendHttp(
+		`${MARKETS_API_URL}?coinId=${id}&currency=USD`
+	);
+
+	return markets.map(market => ({
+		exchange: market.exchange,
+		price: market.price,
+		pair: market.pair,
+		volume: market.volume ? market.volume : 0,
+	}));
 };
 
 const getExchanges = async function () {
@@ -162,4 +176,4 @@ const getStoredNews = async function () {
 	return foundNews;
 };
 
-export { getStatsAndCoins, getCoin, getExchanges, getStoredNews };
+export { getStatsAndCoins, getCoin, getMarkets, getExchanges, getStoredNews };

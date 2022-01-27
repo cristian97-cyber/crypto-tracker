@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 
+import { LanguageContext } from "../../context/languageContext";
 import { visuallyHidden } from "@mui/utils";
 import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
@@ -24,7 +25,7 @@ const headCells = [
 		label: "Price",
 	},
 	{
-		id: "Pair",
+		id: "pair",
 		disablePadding: false,
 		label: "Pair",
 	},
@@ -36,8 +37,15 @@ const headCells = [
 ];
 
 const descendingComparator = function (a, b, orderBy) {
-	if (b[orderBy] < a[orderBy]) return -1;
-	if (b[orderBy] > a[orderBy]) return 1;
+	let aData = a[orderBy];
+	let bData = b[orderBy];
+	if (typeof aData === "string") {
+		aData = aData.toLowerCase();
+		bData = bData.toLowerCase();
+	}
+
+	if (bData < aData) return -1;
+	if (bData > aData) return 1;
 
 	return 0;
 };
@@ -87,6 +95,8 @@ const EnhancedTableHead = function (props) {
 const MarketsTable = function (props) {
 	const { data } = props;
 
+	const language = useContext(LanguageContext);
+
 	const [order, setOrder] = useState("asc");
 	const [orderBy, setOrderBy] = useState("name");
 	const [page, setPage] = useState(0);
@@ -131,15 +141,25 @@ const MarketsTable = function (props) {
 							.slice()
 							.sort(getComparator(order, orderBy))
 							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-							.map(row => {
+							.map((row, i) => {
+								const nf = new Intl.NumberFormat(language, {
+									style: "currency",
+									currency: "USD",
+									currencyDisplay: "narrowSymbol",
+									notation: "compact",
+								});
+
+								const price = nf.format(row.price);
+								const volume = nf.format(row.volume);
+
 								return (
-									<TableRow key={row.exchange} hover>
+									<TableRow key={i} hover>
 										<TableCell component="th" scope="row" padding="none">
 											{row.exchange}
 										</TableCell>
-										<TableCell>{row.price}</TableCell>
+										<TableCell>{price}</TableCell>
 										<TableCell>{row.pair}</TableCell>
-										<TableCell>{row.volume}</TableCell>
+										<TableCell>{volume}</TableCell>
 									</TableRow>
 								);
 							})}

@@ -16,51 +16,12 @@ import Button from "@mui/material/Button";
 import { LanguageContext } from "../../src/context/languageContext";
 import MarketsTable from "../../src/components/crypto/MarketsTable";
 import CryptoHistorical from "../../src/components/crypto/CryptoHistorical";
-import { getStatsAndCoins, getCoin } from "../../src/helpers";
-
-const tableData = [
-	{
-		exchange: "BitMEX",
-		price: "6294",
-		pair: "BTC/USD",
-		volume: "1B",
-	},
-	{
-		exchange: "OKEX",
-		price: "6294",
-		pair: "BTC/USD",
-		volume: "1B",
-	},
-	{
-		exchange: "Quoine",
-		price: "6294",
-		pair: "BTC/USD",
-		volume: "1B",
-	},
-	{
-		exchange: "BitForex",
-		price: "6294",
-		pair: "BTC/USD",
-		volume: "1B",
-	},
-	{
-		exchange: "HitBTC",
-		price: "6294",
-		pair: "BTC/USD",
-		volume: "1B",
-	},
-	{
-		exchange: "Simex",
-		price: "6294",
-		pair: "BTC/USD",
-		volume: "1B",
-	},
-];
+import { getStatsAndCoins, getCoin, getMarkets } from "../../src/helpers";
 
 const chartData = [1200, 1300, 1500, 1000, 900, 2000, 2500];
 
 const CryptocurrencyDetail = function (props) {
-	const { coin, error } = props;
+	const { coin, markets, error } = props;
 
 	const router = useRouter();
 
@@ -86,7 +47,15 @@ const CryptocurrencyDetail = function (props) {
 					}
 					sx={{
 						alignItems: "center",
-						width: "90%",
+						width: "50%",
+
+						[theme.breakpoints.down("lg")]: {
+							width: "70%",
+						},
+
+						[theme.breakpoints.down("md")]: {
+							width: "90%",
+						},
 
 						[theme.breakpoints.down("sm")]: {
 							flexDirection: "column",
@@ -117,18 +86,13 @@ const CryptocurrencyDetail = function (props) {
 		currencyDisplay: "narrowSymbol",
 		notation: "compact",
 	};
+	const cnf = new Intl.NumberFormat(language, currencyOptions);
 
-	const coinPrice = new Intl.NumberFormat(language, currencyOptions).format(
-		coin.price
-	);
+	const coinPrice = cnf.format(coin.price);
+	const coinVolume = cnf.format(coin.volume);
+	const coinMarketCap = cnf.format(coin.marketCap);
 	const coinDailyChange =
 		(coin.dailyChange >= 0 ? "+" : "") + coin.dailyChange + "%";
-	const coinVolume = new Intl.NumberFormat(language, currencyOptions).format(
-		coin.volume
-	);
-	const coinMarketCap = new Intl.NumberFormat(language, currencyOptions).format(
-		coin.marketCap
-	);
 
 	return (
 		<>
@@ -244,7 +208,7 @@ const CryptocurrencyDetail = function (props) {
 								Markets
 							</Typography>
 							<Box sx={{ width: "100%" }}>
-								<MarketsTable data={tableData} />
+								<MarketsTable data={markets} />
 							</Box>
 						</Container>
 					</Box>
@@ -286,11 +250,14 @@ export async function getStaticPaths() {
 export async function getStaticProps(context) {
 	try {
 		const id = context.params.id;
+
 		const coin = await getCoin(id);
+		const markets = await getMarkets(id);
 
 		return {
 			props: {
 				coin,
+				markets,
 			},
 		};
 	} catch (err) {
