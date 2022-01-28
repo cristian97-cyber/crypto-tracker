@@ -52,7 +52,9 @@ const CryptocurrencyDetail = function (props) {
 			data = data.chart.map(d => d[1]);
 
 			const productFactor = Math.floor(data.length / 7);
-			const positions = [0, 1, 2, 3, 4, 5, 6].map(num => num * productFactor);
+			const positions = [0, 1, 2, 3, 4, 5, 6].map(
+				num => num * productFactor + num
+			);
 			data = data.filter((_, i) => positions.includes(i));
 
 			setChartData(data);
@@ -286,7 +288,11 @@ const CryptocurrencyDetail = function (props) {
 								</Grid>
 							</Grid>
 							{loading && (
-								<Grid container justifyContent="center">
+								<Grid
+									container
+									justifyContent="center"
+									sx={{ minHeight: "30rem" }}
+								>
 									<Grid item>
 										<CircularProgress />
 									</Grid>
@@ -303,7 +309,9 @@ const CryptocurrencyDetail = function (props) {
 									<Typography variant="body1">{httpError}</Typography>
 								</Alert>
 							)}
-							{!loading && !error && <CryptoHistorical data={chartData} />}
+							{!loading && !error && (
+								<CryptoHistorical data={chartData} interval={interval} />
+							)}
 						</Container>
 					</Box>
 				</Grid>
