@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Head from "next/head";
 
 import LanguageContextProvider from "../src/context/languageContext";
+import CoinsContextProvider from "../src/context/coinsContext";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { CacheProvider } from "@emotion/react";
@@ -16,6 +17,10 @@ const clientSideEmotionCache = createEmotionCache();
 export default function MyApp(props) {
 	const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
+	const [coins, setCoins] = React.useState([]);
+
+	const setAppCoins = coinsList => setCoins(coinsList);
+
 	return (
 		<CacheProvider value={emotionCache}>
 			<Head>
@@ -24,13 +29,15 @@ export default function MyApp(props) {
 			</Head>
 
 			<LanguageContextProvider>
-				<ThemeProvider theme={theme}>
-					{/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-					<CssBaseline />
+				<CoinsContextProvider>
+					<ThemeProvider theme={theme}>
+						{/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+						<CssBaseline />
 
-					<Navigation />
-					<Component {...pageProps} />
-				</ThemeProvider>
+						<Navigation />
+						<Component {...pageProps} />
+					</ThemeProvider>
+				</CoinsContextProvider>
 			</LanguageContextProvider>
 		</CacheProvider>
 	);

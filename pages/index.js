@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
@@ -13,6 +13,7 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 
 import { LanguageContext } from "../src/context/languageContext";
+import { CoinsContext } from "../src/context/coinsContext";
 import CryptoList from "../src/components/crypto/CryptoList";
 import NewsList from "../src/components/news/NewsList";
 import { getStatsAndCoins, getStoredNews } from "../src/helpers";
@@ -21,8 +22,13 @@ const Index = function (props) {
 	const { stats, coins, news, generalError, newsError } = props;
 
 	const language = useContext(LanguageContext);
+	const coinsCtx = useContext(CoinsContext);
 
 	const router = useRouter();
+
+	useEffect(() => {
+		coinsCtx.setCoins(coins);
+	}, [coins]);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));

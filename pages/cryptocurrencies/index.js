@@ -1,3 +1,4 @@
+import { useContext, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
@@ -11,13 +12,20 @@ import Pagination from "@mui/material/Pagination";
 import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 
+import { CoinsContext } from "../../src/context/coinsContext";
 import CryptoList from "../../src/components/crypto/CryptoList";
 import { getStatsAndCoins } from "../../src/helpers";
 
 const Cryptocurrencies = function (props) {
 	const { coins, error } = props;
 
+	const coinsCtx = useContext(CoinsContext);
+
 	const router = useRouter();
+
+	useEffect(() => {
+		coinsCtx.setCoins(coins);
+	}, [coins]);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
