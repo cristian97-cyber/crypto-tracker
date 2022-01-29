@@ -15,6 +15,7 @@ const useHttp = function () {
 			const data = await res.json();
 			return data;
 		} catch (err) {
+			console.log("Here");
 			setError(errorMessage);
 		} finally {
 			setLoading(false);

@@ -25,7 +25,31 @@ import { getStatsAndCoins, getCoin, getMarkets } from "../../src/helpers";
 import useHttp from "../../src/hooks/use-http";
 import { HISTORICAL_API_URL } from "../../src/config";
 
-const chartData = [1200, 1300, 1500, 1000, 900, 2000, 2500];
+const calculateStartTime = function (endTime, interval) {
+	let startTime;
+
+	switch (interval) {
+		case "1w":
+			startTime = endTime - 7 * 24 * 60 * 60 * 1000;
+			break;
+		case "1m":
+			startTime = endTime - 30 * 24 * 60 * 60 * 1000;
+			break;
+		case "3m":
+			startTime = endTime - 90 * 24 * 60 * 60 * 1000;
+			break;
+		case "6m":
+			startTime = endTime - 180 * 24 * 60 * 60 * 1000;
+			break;
+		case "1y":
+			startTime = endTime - 365 * 24 * 60 * 60 * 1000;
+			break;
+		default:
+			break;
+	}
+
+	return startTime;
+};
 
 const CryptocurrencyDetail = function (props) {
 	const { coin, markets, error } = props;
@@ -36,28 +60,49 @@ const CryptocurrencyDetail = function (props) {
 
 	const [interval, setInterval] = useState("1w");
 	const [chartData, setChartData] = useState([]);
+	const [chartLabels, setChartLabels] = useState([]);
 
 	const { loading, error: httpError, sendHttpRequest } = useHttp();
 
 	useEffect(() => {
 		const getHistoricalData = async function () {
+			const endTime = Date.now();
+			const startTime = calculateStartTime(endTime, interval);
+
+			const startDate = new Date(startTime).toISOString().slice(0, 10);
+			const endDate = new Date(endTime).toISOString().slice(0, 10);
+
 			let data = await sendHttpRequest(
 				{
-					url: `${HISTORICAL_API_URL}?period=${interval}&coinId=${router.query.id}&currency=USD`,
+					url: `${HISTORICAL_API_URL}/${coin.symbol.toLowerCase()}-${coin.name.toLowerCase()}/ohlcv/historical?start=${startDate}&end=${endDate}`,
 				},
 				"Unable to retrieve historical data"
 			);
 			if (!data) return;
 
-			data = data.chart.map(d => d[1]);
+			const factor = Math.floor(data.length / 7);
+			let divisor = 5;
 
-			const productFactor = Math.floor(data.length / 7);
-			const positions = [0, 1, 2, 3, 4, 5, 6].map(
-				num => num * productFactor + num
-			);
-			data = data.filter((_, i) => positions.includes(i));
+			let positions;
+			if (interval === "1w") {
+				positions = [1, 2, 3, 4, 5, 6, 7];
+			} else {
+				positions = [1, 2, 3, 4, 5].map(
+					num => num * factor + Math.floor(factor / divisor--)
+				);
+				positions.unshift(0);
+				positions.push(data.length - 1);
+			}
 
-			setChartData(data);
+			const chartValues = data
+				.filter((_, i) => positions.includes(i))
+				.map(item => (item.high + item.low) / 2);
+			const chartDates = data
+				.filter((_, i) => positions.includes(i))
+				.map(item => new Date(item.time_open));
+
+			setChartData(chartValues);
+			setChartLabels(chartDates);
 		};
 		getHistoricalData();
 	}, [router, interval, sendHttpRequest]);
@@ -277,7 +322,6 @@ const CryptocurrencyDetail = function (props) {
 											value={interval}
 											onChange={e => setInterval(e.target.value)}
 										>
-											<MenuItem value="24h">Daily</MenuItem>
 											<MenuItem value="1w">Weekly</MenuItem>
 											<MenuItem value="1m">Monthly</MenuItem>
 											<MenuItem value="3m">Three months</MenuItem>
@@ -309,8 +353,25 @@ const CryptocurrencyDetail = function (props) {
 									<Typography variant="body1">{httpError}</Typography>
 								</Alert>
 							)}
-							{!loading && !error && (
-								<CryptoHistorical data={chartData} interval={interval} />
+							{!loading && !httpError && chartData.length === 0 && (
+								<Alert
+									severity="info"
+									sx={{
+										justifyContent: "center",
+										width: "100%",
+									}}
+								>
+									<Typography variant="body1">
+										There are no data about this currency
+									</Typography>
+								</Alert>
+							)}
+							{!loading && !httpError && chartData.length > 0 && (
+								<CryptoHistorical
+									data={chartData}
+									labels={chartLabels}
+									interval={interval}
+								/>
 							)}
 						</Container>
 					</Box>

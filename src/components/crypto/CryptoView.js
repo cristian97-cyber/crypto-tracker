@@ -15,7 +15,7 @@ const CryptoView = function (props) {
 	const theme = useTheme();
 
 	return (
-		<Card sx={{ width: "100%" }}>
+		<Card sx={{ width: "100%", height: "100%" }}>
 			<CardActionArea component={Link} href={`/cryptocurrencies/${id}`}>
 				<CardContent>
 					<Grid
