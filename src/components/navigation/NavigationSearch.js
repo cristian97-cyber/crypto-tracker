@@ -1,4 +1,5 @@
-import { useContext, useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 import { useTheme, alpha } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -6,33 +7,37 @@ import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import CircularProgress from "@mui/material/CircularProgress";
-
-import { CoinsContext } from "../../context/coinsContext";
+import { setQuery, setResults, setLoading } from "../../store/searchSlice";
 
 const NavigationSearch = function (props) {
 	const { closeDrawer } = props;
 
-	const coinsCtx = useContext(CoinsContext);
-
-	const [query, setQuery] = useState("");
-	const [loading, setLoading] = useState(false);
-
-	const changeQuery = e => setQuery(e.target.value);
+	const searchSlice = useSelector(state => state.search);
+	const dispatch = useDispatch();
 
 	useEffect(() => {
+		const query = searchSlice.query;
+		const coins = searchSlice.coins;
+
 		if (!query) {
-			setLoading(false);
+			dispatch(setResults([]));
+			dispatch(setLoading(false));
 			return;
 		}
 
-		setLoading(true);
+		dispatch(setLoading(true));
 
 		const timeout = setTimeout(() => {
-			setLoading(false);
+			const filteredCoins = coins.filter(coin =>
+				coin.name.toLowerCase().includes(searchSlice.query.toLowerCase())
+			);
+
+			dispatch(setResults(filteredCoins));
+			dispatch(setLoading(false));
 		}, 500);
 
 		return () => clearTimeout(timeout);
-	}, [query]);
+	}, [searchSlice.query, searchSlice.coins, dispatch, setResults, setLoading]);
 
 	const theme = useTheme();
 	const down370 = useMediaQuery(theme.breakpoints.down(370));
@@ -40,57 +45,60 @@ const NavigationSearch = function (props) {
 	const placeholder = !down370 ? "Search currency" : "";
 
 	return (
-		<TextField
-			id="search-currency"
-			value={query}
-			onChange={changeQuery}
-			InputProps={{
-				startAdornment: (
-					<InputAdornment position="start">
-						<SearchIcon />
-					</InputAdornment>
-				),
-				endAdornment: (
-					<InputAdornment position="end">
-						<CircularProgress
-							size="1.5rem"
-							sx={{
-								color: loading ? "inherit" : "transparent",
-							}}
-						/>
-					</InputAdornment>
-				),
-				placeholder: placeholder,
-				onFocus: closeDrawer,
-			}}
-			sx={{
-				width: "20rem",
-				backgroundColor: alpha(theme.palette.common.white, 0.15),
-				borderRadius: 2,
-				mr: 0,
+		<>
+			<TextField
+				id="search-currency"
+				value={searchSlice.query}
+				onChange={e => dispatch(setQuery(e.target.value))}
+				placeholder={placeholder}
+				InputProps={{
+					startAdornment: (
+						<InputAdornment position="start">
+							<SearchIcon />
+						</InputAdornment>
+					),
+					endAdornment: (
+						<InputAdornment position="end">
+							<CircularProgress
+								color="inherit"
+								size="1.5rem"
+								sx={{
+									opacity: searchSlice.loading ? 1 : 0,
+								}}
+							/>
+						</InputAdornment>
+					),
+					onFocus: closeDrawer,
+				}}
+				sx={{
+					width: "20rem",
+					backgroundColor: alpha(theme.palette.common.white, 0.15),
+					borderRadius: 2,
+					mr: 0,
 
-				"&:hover": {
-					backgroundColor: alpha(theme.palette.common.white, 0.25),
-				},
+					"&:hover": {
+						backgroundColor: alpha(theme.palette.common.white, 0.25),
+					},
 
-				"& .MuiOutlinedInput-notchedOutline": {
-					border: "none",
-				},
+					"& .MuiOutlinedInput-notchedOutline": {
+						border: "none",
+					},
 
-				[theme.breakpoints.down("lg")]: {
-					mr: "auto",
-				},
+					[theme.breakpoints.down("lg")]: {
+						mr: "auto",
+					},
 
-				[theme.breakpoints.down("md")]: {
-					width: "15rem",
-				},
+					[theme.breakpoints.down("md")]: {
+						width: "15rem",
+					},
 
-				[theme.breakpoints.down(450)]: {
-					width: "100%",
-					mx: "1rem",
-				},
-			}}
-		/>
+					[theme.breakpoints.down(450)]: {
+						width: "100%",
+						mx: "1rem",
+					},
+				}}
+			/>
+		</>
 	);
 };
 

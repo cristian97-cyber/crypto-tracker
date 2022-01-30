@@ -1,6 +1,7 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -12,19 +13,19 @@ import Pagination from "@mui/material/Pagination";
 import Backdrop from "@mui/material/Backdrop";
 import Alert from "@mui/material/Alert";
 
-import { CoinsContext } from "../../src/context/coinsContext";
 import CryptoList from "../../src/components/crypto/CryptoList";
 import { getStatsAndCoins } from "../../src/helpers";
+import { setCoins } from "../../src/store/searchSlice";
 
 const Cryptocurrencies = function (props) {
 	const { coins, error } = props;
 
-	const coinsCtx = useContext(CoinsContext);
+	const dispatch = useDispatch();
 
 	const router = useRouter();
 
 	useEffect(() => {
-		coinsCtx.setCoins(coins);
+		dispatch(setCoins(coins.coinsList));
 	}, [coins]);
 
 	const theme = useTheme();
