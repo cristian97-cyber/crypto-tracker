@@ -78,6 +78,8 @@ const ScrollTop = function (props) {
 };
 
 const Navigation = function (props) {
+	const { changeSearchMode, changeSearchResults } = props;
+
 	const router = useRouter();
 
 	let initialRoute;
@@ -165,11 +167,18 @@ const Navigation = function (props) {
 					{!downLg ? (
 						<>
 							<DesktopNavigation routes={routes} activeRoute={activeRoute} />
-							<NavigationSearch />
+							<NavigationSearch
+								changeSearchMode={changeSearchMode}
+								changeSearchResults={changeSearchResults}
+							/>
 						</>
 					) : (
 						<>
-							<NavigationSearch closeDrawer={closeDrawer} />
+							<NavigationSearch
+								closeDrawer={closeDrawer}
+								changeSearchMode={changeSearchMode}
+								changeSearchResults={changeSearchResults}
+							/>
 							<MobileNavigation
 								routes={routes}
 								activeRoute={activeRoute}

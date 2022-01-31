@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useState, useContext, useEffect } from "react";
+import { useRouter } from "next/router";
 
 import { useTheme, alpha } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -7,37 +7,54 @@ import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import CircularProgress from "@mui/material/CircularProgress";
-import { setQuery, setResults, setLoading } from "../../store/searchSlice";
+
+import { SearchContext } from "../../context/searchContext";
 
 const NavigationSearch = function (props) {
-	const { closeDrawer } = props;
+	const { closeDrawer, changeSearchMode, changeSearchResults } = props;
 
-	const searchSlice = useSelector(state => state.search);
-	const dispatch = useDispatch();
+	const router = useRouter();
+
+	const searchCtx = useContext(SearchContext);
+	const coins = searchCtx.coins;
+
+	const [query, setQuery] = useState("");
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
-		const query = searchSlice.query;
-		const coins = searchSlice.coins;
-
 		if (!query) {
-			dispatch(setResults([]));
-			dispatch(setLoading(false));
+			setLoading(false);
+			changeSearchMode(false);
+			changeSearchResults([]);
 			return;
 		}
 
-		dispatch(setLoading(true));
+		setLoading(true);
 
 		const timeout = setTimeout(() => {
-			const filteredCoins = coins.filter(coin =>
-				coin.name.toLowerCase().includes(searchSlice.query.toLowerCase())
+			let filteredCoins = coins.filter(coin =>
+				coin.name.toLowerCase().includes(query.toLowerCase())
 			);
 
-			dispatch(setResults(filteredCoins));
-			dispatch(setLoading(false));
+			if (filteredCoins.length > 12) filteredCoins = filteredCoins.slice(0, 12);
+
+			changeSearchResults(filteredCoins);
+			changeSearchMode(true);
+			setLoading(false);
 		}, 500);
 
 		return () => clearTimeout(timeout);
-	}, [searchSlice.query, searchSlice.coins, dispatch, setResults, setLoading]);
+	}, [query, coins, changeSearchMode, changeSearchResults]);
+
+	useEffect(() => {
+		const handleRouteChange = function (url) {
+			setQuery("");
+		};
+
+		router.events.on("routeChangeStart", handleRouteChange);
+
+		return () => router.events.off("routeChangeStart", handleRouteChange);
+	}, [router]);
 
 	const theme = useTheme();
 	const down370 = useMediaQuery(theme.breakpoints.down(370));
@@ -48,8 +65,8 @@ const NavigationSearch = function (props) {
 		<>
 			<TextField
 				id="search-currency"
-				value={searchSlice.query}
-				onChange={e => dispatch(setQuery(e.target.value))}
+				value={query}
+				onChange={e => setQuery(e.target.value)}
 				placeholder={placeholder}
 				InputProps={{
 					startAdornment: (
@@ -63,7 +80,7 @@ const NavigationSearch = function (props) {
 								color="inherit"
 								size="1.5rem"
 								sx={{
-									opacity: searchSlice.loading ? 1 : 0,
+									opacity: loading ? 1 : 0,
 								}}
 							/>
 						</InputAdornment>
@@ -98,6 +115,24 @@ const NavigationSearch = function (props) {
 					},
 				}}
 			/>
+
+			{/* {pageRendered &&
+				ReactDOM.createPortal(
+					<Backdrop
+						open={backdropVisible}
+						sx={{
+							height: "100%",
+							position: "absolute",
+							bottom: "auto",
+							backgroundColor: theme.palette.common.baseBackground,
+						}}
+					>
+						<Container fixed>
+							{results.length > 0 && <CryptoList cryptos={results} />}
+						</Container>
+					</Backdrop>,
+					document.querySelector("#__next")
+				)} */}
 		</>
 	);
 };

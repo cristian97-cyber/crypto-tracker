@@ -1,7 +1,6 @@
 import { useContext, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useDispatch } from "react-redux";
 
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -14,23 +13,22 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 
 import { LanguageContext } from "../src/context/languageContext";
+import { SearchContext } from "../src/context/searchContext";
 import CryptoList from "../src/components/crypto/CryptoList";
 import NewsList from "../src/components/news/NewsList";
 import { getStatsAndCoins, getStoredNews } from "../src/helpers";
-import { setCoins } from "../src/store/searchSlice";
 
 const Index = function (props) {
 	const { stats, coins, news, generalError, newsError } = props;
 
-	const dispatch = useDispatch();
-
 	const language = useContext(LanguageContext);
+	const searchCtx = useContext(SearchContext);
 
 	const router = useRouter();
 
 	useEffect(() => {
-		dispatch(setCoins(coins.coinsList));
-	}, [coins]);
+		searchCtx.setCoins(coins.coinsList);
+	}, [coins, searchCtx]);
 
 	const theme = useTheme();
 	const downMd = useMediaQuery(theme.breakpoints.down("md"));
