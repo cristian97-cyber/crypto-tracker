@@ -32,14 +32,14 @@ const NavigationSearch = function (props) {
 		}, 500);
 
 		return () => clearTimeout(timeout);
-	}, [query]);
+	}, [query, router]);
 
 	useEffect(() => {
 		if (goBack) {
 			router.push(backPath);
 			setGoBack(false);
 		}
-	}, [goBack]);
+	}, [goBack, router]);
 
 	useEffect(() => {
 		if (router.pathname !== "/search") {
