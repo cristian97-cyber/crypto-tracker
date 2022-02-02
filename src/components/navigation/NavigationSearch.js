@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useReducer, useEffect } from "react";
 import { useRouter } from "next/router";
 
 import { useTheme, alpha } from "@mui/material/styles";
@@ -8,53 +8,52 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { SearchContext } from "../../context/searchContext";
-
 const NavigationSearch = function (props) {
-	const { closeDrawer, changeSearchMode, changeSearchResults } = props;
+	const { closeDrawer } = props;
 
 	const router = useRouter();
 
-	const searchCtx = useContext(SearchContext);
-	const coins = searchCtx.coins;
-
 	const [query, setQuery] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [goBack, setGoBack] = useState(false);
+	const [backPath, setBackPath] = useState("/");
 
 	useEffect(() => {
 		if (!query) {
 			setLoading(false);
-			changeSearchMode(false);
-			changeSearchResults([]);
 			return;
 		}
 
 		setLoading(true);
 
 		const timeout = setTimeout(() => {
-			let filteredCoins = coins.filter(coin =>
-				coin.name.toLowerCase().includes(query.toLowerCase())
-			);
-
-			if (filteredCoins.length > 12) filteredCoins = filteredCoins.slice(0, 12);
-
-			changeSearchResults(filteredCoins);
-			changeSearchMode(true);
+			router.push(`/search?q=${query}`);
 			setLoading(false);
 		}, 500);
 
 		return () => clearTimeout(timeout);
-	}, [query, coins, changeSearchMode, changeSearchResults]);
+	}, [query]);
 
 	useEffect(() => {
-		const handleRouteChange = function (url) {
+		if (goBack) {
+			router.push(backPath);
+			setGoBack(false);
+		}
+	}, [goBack]);
+
+	useEffect(() => {
+		if (router.pathname !== "/search") {
 			setQuery("");
-		};
-
-		router.events.on("routeChangeStart", handleRouteChange);
-
-		return () => router.events.off("routeChangeStart", handleRouteChange);
+			setBackPath(router.pathname);
+		}
 	}, [router]);
+
+	const changeQuery = function (event) {
+		setQuery(event.target.value);
+		if (event.target.value.length === 0) setGoBack(true);
+
+		return;
+	};
 
 	const theme = useTheme();
 	const down370 = useMediaQuery(theme.breakpoints.down(370));
@@ -66,7 +65,7 @@ const NavigationSearch = function (props) {
 			<TextField
 				id="search-currency"
 				value={query}
-				onChange={e => setQuery(e.target.value)}
+				onChange={changeQuery}
 				placeholder={placeholder}
 				InputProps={{
 					startAdornment: (
@@ -115,24 +114,6 @@ const NavigationSearch = function (props) {
 					},
 				}}
 			/>
-
-			{/* {pageRendered &&
-				ReactDOM.createPortal(
-					<Backdrop
-						open={backdropVisible}
-						sx={{
-							height: "100%",
-							position: "absolute",
-							bottom: "auto",
-							backgroundColor: theme.palette.common.baseBackground,
-						}}
-					>
-						<Container fixed>
-							{results.length > 0 && <CryptoList cryptos={results} />}
-						</Container>
-					</Backdrop>,
-					document.querySelector("#__next")
-				)} */}
 		</>
 	);
 };

@@ -78,23 +78,26 @@ const ScrollTop = function (props) {
 };
 
 const Navigation = function (props) {
-	const { changeSearchMode, changeSearchResults } = props;
-
 	const router = useRouter();
 
 	let initialRoute;
 	routes.forEach(route => {
 		if (route.links.includes(router.pathname)) initialRoute = route.links[0];
 	});
+	if (!initialRoute) initialRoute = false;
 
 	const [activeRoute, setActiveRoute] = useState(initialRoute);
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
 	useEffect(() => {
 		const handleRouteChange = function (url) {
+			let newRoute;
 			routes.forEach(route => {
-				if (route.links.includes(url)) setActiveRoute(route.links[0]);
+				if (route.links.includes(url)) newRoute = route.links[0];
 			});
+			if (!newRoute) newRoute = false;
+
+			setActiveRoute(newRoute);
 		};
 
 		router.events.on("routeChangeStart", handleRouteChange);
@@ -167,18 +170,11 @@ const Navigation = function (props) {
 					{!downLg ? (
 						<>
 							<DesktopNavigation routes={routes} activeRoute={activeRoute} />
-							<NavigationSearch
-								changeSearchMode={changeSearchMode}
-								changeSearchResults={changeSearchResults}
-							/>
+							<NavigationSearch />
 						</>
 					) : (
 						<>
-							<NavigationSearch
-								closeDrawer={closeDrawer}
-								changeSearchMode={changeSearchMode}
-								changeSearchResults={changeSearchResults}
-							/>
+							<NavigationSearch closeDrawer={closeDrawer} />
 							<MobileNavigation
 								routes={routes}
 								activeRoute={activeRoute}
