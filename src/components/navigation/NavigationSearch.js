@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
 import { useTheme, alpha } from "@mui/material/styles";
@@ -6,7 +6,6 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import CircularProgress from "@mui/material/CircularProgress";
 
 const NavigationSearch = function (props) {
 	const { closeDrawer } = props;
@@ -14,45 +13,25 @@ const NavigationSearch = function (props) {
 	const router = useRouter();
 
 	const [query, setQuery] = useState("");
-	const [loading, setLoading] = useState(false);
-	const [goBack, setGoBack] = useState(false);
 	const [backPath, setBackPath] = useState("/");
 
 	useEffect(() => {
-		if (!query) {
-			setLoading(false);
-			return;
-		}
-
-		setLoading(true);
-
-		const timeout = setTimeout(() => {
-			router.push(`/search?q=${query}`);
-			setLoading(false);
-		}, 500);
-
-		return () => clearTimeout(timeout);
-	}, [query, router]);
-
-	useEffect(() => {
-		if (goBack) {
-			router.push(backPath);
-			setGoBack(false);
-		}
-	}, [goBack, router]);
-
-	useEffect(() => {
 		if (router.pathname !== "/search") {
-			setQuery("");
 			setBackPath(router.pathname);
+			setQuery("");
+		} else {
+			setQuery(router.query.q ? router.query.q : "");
 		}
 	}, [router]);
 
 	const changeQuery = function (event) {
 		setQuery(event.target.value);
-		if (event.target.value.length === 0) setGoBack(true);
 
-		return;
+		if (event.target.value.length > 0) {
+			router.push(`/search?q=${event.target.value}`);
+		} else {
+			router.push(backPath);
+		}
 	};
 
 	const theme = useTheme();
@@ -71,17 +50,6 @@ const NavigationSearch = function (props) {
 					startAdornment: (
 						<InputAdornment position="start">
 							<SearchIcon />
-						</InputAdornment>
-					),
-					endAdornment: (
-						<InputAdornment position="end">
-							<CircularProgress
-								color="inherit"
-								size="1.5rem"
-								sx={{
-									opacity: loading ? 1 : 0,
-								}}
-							/>
 						</InputAdornment>
 					),
 					onFocus: closeDrawer,

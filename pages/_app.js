@@ -17,15 +17,6 @@ const clientSideEmotionCache = createEmotionCache();
 export default function MyApp(props) {
 	const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
-	// const [searchMode, setSearchMode] = React.useState(false);
-	// const [searchResults, setSearchResults] = React.useState([]);
-
-	// const changeSearchMode = React.useCallback(mode => setSearchMode(mode), []);
-	// const changeSearchResults = React.useCallback(
-	// 	results => setSearchResults(results),
-	// 	[]
-	// );
-
 	return (
 		<CacheProvider value={emotionCache}>
 			<Head>
