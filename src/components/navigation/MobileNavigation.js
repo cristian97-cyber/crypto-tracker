@@ -46,19 +46,19 @@ const MobileNavigation = function (props) {
 				<Box sx={{ minHeight: theme.mixins.toolbar.minHeight + 30 }}></Box>
 				<List>
 					{routes.map(route => (
-						<ListItem key={route.links[0]} disablePadding>
+						<ListItem key={route.link} disablePadding>
 							<ListItemButton
 								component={Link}
-								href={route.links[0]}
+								href={route.link}
 								onClick={toggleDrawer}
-								selected={route.links[0] === activeRoute}
+								selected={route.link === activeRoute}
 								sx={{
 									py: "1rem",
 								}}
 							>
 								<ListItemIcon
 									sx={{
-										opacity: route.links[0] === activeRoute ? 1 : 0.7,
+										opacity: route.link === activeRoute ? 1 : 0.7,
 									}}
 								>
 									{route.name === "Home" && <HomeIcon />}
@@ -70,7 +70,7 @@ const MobileNavigation = function (props) {
 									<Typography
 										variant="tabs"
 										sx={{
-											opacity: route.links[0] === activeRoute ? 1 : 0.7,
+											opacity: route.link === activeRoute ? 1 : 0.7,
 										}}
 									>
 										{route.name}

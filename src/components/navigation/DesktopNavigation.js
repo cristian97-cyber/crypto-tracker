@@ -12,11 +12,11 @@ const DesktopNavigation = function (props) {
 		<Tabs value={activeRoute} aria-label="Navigation tabs" sx={{ mr: "auto" }}>
 			{routes.map(route => (
 				<Tab
-					key={route.links[0]}
+					key={route.link}
 					label={route.name}
-					value={route.links[0]}
+					value={route.link}
 					component={Link}
-					href={route.links[0]}
+					href={route.link}
 					sx={{
 						...theme.typography.tabs,
 						px: "1rem",

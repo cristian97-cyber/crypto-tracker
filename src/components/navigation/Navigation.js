@@ -22,21 +22,23 @@ import NavigationSearch from "./NavigationSearch";
 const routes = [
 	{
 		name: "Home",
-		links: ["/"],
+		link: "/",
 	},
 	{
 		name: "Cryptocurrencies",
-		links: ["/cryptocurrencies", "/cryptocurrencies/[id]"],
+		link: "/cryptocurrencies",
 	},
 	{
 		name: "Exchanges",
-		links: ["/exchanges"],
+		link: "/exchanges",
 	},
 	{
 		name: "News",
-		links: ["/news"],
+		link: "/news",
 	},
 ];
+
+const getBasePathname = pathname => `/${pathname.split("/")[1]}`;
 
 const ScrollTop = function (props) {
 	const { children } = props;
@@ -82,7 +84,8 @@ const Navigation = function (props) {
 
 	let initialRoute;
 	routes.forEach(route => {
-		if (route.links.includes(router.pathname)) initialRoute = route.links[0];
+		const basePathname = getBasePathname(router.pathname);
+		if (route.link === basePathname) initialRoute = route.link;
 	});
 	if (!initialRoute) initialRoute = false;
 
@@ -91,9 +94,11 @@ const Navigation = function (props) {
 
 	useEffect(() => {
 		const handleRouteChange = function (url) {
+			const basePathname = getBasePathname(url);
 			let newRoute;
+
 			routes.forEach(route => {
-				if (route.links.includes(url)) newRoute = route.links[0];
+				if (route.link === basePathname) newRoute = route.link;
 			});
 			if (!newRoute) newRoute = false;
 
