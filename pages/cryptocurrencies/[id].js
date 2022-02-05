@@ -201,7 +201,9 @@ const CryptocurrencyDetail = function (props) {
 								}}
 							>
 								<Grid item>
-									<Typography variant="h1">{coin.name}</Typography>
+									<Typography variant="h1" align={!downMd ? "left" : "center"}>
+										{coin.name}
+									</Typography>
 								</Grid>
 								<Grid item>
 									<Box
@@ -220,7 +222,7 @@ const CryptocurrencyDetail = function (props) {
 								rowSpacing={4}
 								align={!downMd ? "left" : "center"}
 							>
-								<Grid item xs={12} sm={6}>
+								<Grid item xs={12}>
 									<Typography variant="subtitle1">Symbol</Typography>
 									<Typography variant="cryptoStats">{coin.symbol}</Typography>
 								</Grid>

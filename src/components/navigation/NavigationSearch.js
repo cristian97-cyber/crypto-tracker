@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 
 import { useTheme, alpha } from "@mui/material/styles";
@@ -6,6 +6,38 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
+
+const generateBackPath = function (router) {
+	const pathname = router.pathname;
+	const pathStructure = pathname.split("/").slice(1);
+
+	let dynamicRouteName = "";
+	const newPathStructure = pathStructure.map(str => {
+		if (!str.includes("[")) return str;
+
+		dynamicRouteName = str.slice(1, -1);
+		const dynamicRouteValue = router.query[dynamicRouteName];
+		return dynamicRouteValue;
+	});
+
+	if (router.query) {
+		let routeParams = "";
+		let first = true;
+
+		for (const [paramName, paramValue] of Object.entries(router.query)) {
+			if (paramName === dynamicRouteName) break;
+
+			routeParams += `${first ? "?" : "&"}${paramName}=${paramValue}`;
+			first = false;
+		}
+
+		newPathStructure[newPathStructure.length - 1] = `${
+			newPathStructure[newPathStructure.length - 1]
+		}${routeParams}`;
+	}
+
+	return `/${newPathStructure.join("/")}`;
+};
 
 const NavigationSearch = function (props) {
 	const { closeDrawer } = props;
@@ -17,7 +49,7 @@ const NavigationSearch = function (props) {
 
 	useEffect(() => {
 		if (router.pathname !== "/search") {
-			setBackPath(router.pathname);
+			setBackPath(generateBackPath(router));
 			setQuery("");
 		} else {
 			setQuery(router.query.q ? router.query.q : "");

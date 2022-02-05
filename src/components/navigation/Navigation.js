@@ -93,21 +93,14 @@ const Navigation = function (props) {
 	const [drawerOpen, setDrawerOpen] = useState(false);
 
 	useEffect(() => {
-		const handleRouteChange = function (url) {
-			const basePathname = getBasePathname(url);
-			let newRoute;
+		const basePathname = getBasePathname(router.pathname);
+		let newActiveRoute = false;
 
-			routes.forEach(route => {
-				if (route.link === basePathname) newRoute = route.link;
-			});
-			if (!newRoute) newRoute = false;
+		routes.forEach(route => {
+			if (route.link === basePathname) newActiveRoute = route.link;
+		});
 
-			setActiveRoute(newRoute);
-		};
-
-		router.events.on("routeChangeStart", handleRouteChange);
-
-		return () => router.events.off("routeChangeStart", handleRouteChange);
+		setActiveRoute(newActiveRoute);
 	}, [router]);
 
 	const toggleDrawer = function (event) {
