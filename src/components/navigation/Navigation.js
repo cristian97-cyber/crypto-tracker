@@ -18,6 +18,7 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import DesktopNavigation from "./DesktopNavigation";
 import MobileNavigation from "./MobileNavigation";
 import NavigationSearch from "./NavigationSearch";
+import ThemeSelector from "../ThemeSelector";
 
 const routes = [
 	{
@@ -80,6 +81,8 @@ const ScrollTop = function (props) {
 };
 
 const Navigation = function (props) {
+	const { themeStyle, toggleThemeStyle } = props;
+
 	const router = useRouter();
 
 	let initialRoute;
@@ -122,7 +125,7 @@ const Navigation = function (props) {
 
 	return (
 		<>
-			<AppBar position="sticky">
+			<AppBar position="sticky" color="inherit">
 				<Toolbar
 					sx={{
 						py: "0.5rem",
@@ -150,7 +153,11 @@ const Navigation = function (props) {
 							>
 								<Box
 									component="img"
-									src="/logo.svg"
+									src={
+										theme.palette.mode === "dark"
+											? "/logo_orange.svg"
+											: "/logo_blue.svg"
+									}
 									alt="Website logo"
 									sx={{
 										height: "3rem",
@@ -168,16 +175,31 @@ const Navigation = function (props) {
 					{!downLg ? (
 						<>
 							<DesktopNavigation routes={routes} activeRoute={activeRoute} />
-							<NavigationSearch />
+
+							<Box
+								sx={{
+									display: "flex",
+									alignItems: "center",
+								}}
+							>
+								<NavigationSearch />
+								<ThemeSelector
+									themeStyle={themeStyle}
+									toggleThemeStyle={toggleThemeStyle}
+								/>
+							</Box>
 						</>
 					) : (
 						<>
 							<NavigationSearch closeDrawer={closeDrawer} />
+
 							<MobileNavigation
 								routes={routes}
 								activeRoute={activeRoute}
 								drawerOpen={drawerOpen}
 								toggleDrawer={toggleDrawer}
+								themeStyle={themeStyle}
+								toggleThemeStyle={toggleThemeStyle}
 							/>
 						</>
 					)}

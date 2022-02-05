@@ -88,12 +88,18 @@ const NavigationSearch = function (props) {
 				}}
 				sx={{
 					width: "20rem",
-					backgroundColor: alpha(theme.palette.common.white, 0.15),
+					backgroundColor:
+						theme.palette.mode === "dark"
+							? alpha(theme.palette.common.white, 0.15)
+							: alpha(theme.palette.common.black, 0.1),
 					borderRadius: 2,
 					mr: 0,
 
 					"&:hover": {
-						backgroundColor: alpha(theme.palette.common.white, 0.25),
+						backgroundColor:
+							theme.palette.mode === "dark"
+								? alpha(theme.palette.common.white, 0.25)
+								: alpha(theme.palette.common.black, 0.15),
 					},
 
 					"& .MuiOutlinedInput-notchedOutline": {
