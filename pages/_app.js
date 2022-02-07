@@ -19,11 +19,20 @@ const clientSideEmotionCache = createEmotionCache();
 export default function MyApp(props) {
 	const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
 
-	const [themeStyle, setThemeStyle] = React.useState("dark");
+	const [themeStyle, setThemeStyle] = React.useState("light");
 
 	const toggleThemeStyle = function () {
 		setThemeStyle(prev => (prev === "dark" ? "light" : "dark"));
 	};
+
+	React.useEffect(() => {
+		const savedThemeStyle = localStorage.getItem("theme-style");
+		if (savedThemeStyle) setThemeStyle(savedThemeStyle);
+	}, []);
+
+	React.useEffect(() => {
+		localStorage.setItem("theme-style", themeStyle);
+	}, [themeStyle]);
 
 	const theme = themeStyle === "dark" ? darkTheme : lightTheme;
 
