@@ -38,26 +38,31 @@ const Search = function (props) {
 
 	if (error)
 		return (
-			<Backdrop
-				open={true}
-				sx={{
-					zIndex: theme.zIndex.appBar + 1,
-				}}
-			>
-				<Alert
-					severity="error"
+			<>
+				<Head>
+					<title>Crypto Tracker | Page Not Available</title>
+				</Head>
+				<Backdrop
+					open={true}
 					sx={{
-						justifyContent: "center",
-						width: "50%",
-
-						[theme.breakpoints.down("md")]: {
-							width: "90%",
-						},
+						zIndex: theme.zIndex.appBar + 1,
 					}}
 				>
-					<Typography variant="body1">{error}</Typography>
-				</Alert>
-			</Backdrop>
+					<Alert
+						severity="error"
+						sx={{
+							justifyContent: "center",
+							width: "50%",
+
+							[theme.breakpoints.down("md")]: {
+								width: "90%",
+							},
+						}}
+					>
+						<Typography variant="body1">{error}</Typography>
+					</Alert>
+				</Backdrop>
+			</>
 		);
 
 	return (
@@ -123,6 +128,7 @@ export async function getStaticProps() {
 			props: {
 				error: "This page is temporarily unreachable",
 			},
+			revalidate: 60,
 		};
 	}
 }

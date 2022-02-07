@@ -29,32 +29,41 @@ const Index = function (props) {
 
 	if (generalError)
 		return (
-			<Backdrop
-				open={true}
-				sx={{
-					zIndex: theme.zIndex.appBar + 1,
-				}}
-			>
-				<Alert
-					severity="error"
+			<>
+				<Head>
+					<title>Crypto Tracker | Page Not Available</title>
+				</Head>
+				<Backdrop
+					open={true}
 					sx={{
-						justifyContent: "center",
-						width: "50%",
-
-						[theme.breakpoints.down("md")]: {
-							width: "90%",
-						},
+						zIndex: theme.zIndex.appBar + 1,
 					}}
 				>
-					<Typography variant="body1">{generalError}</Typography>
-				</Alert>
-			</Backdrop>
+					<Alert
+						severity="error"
+						sx={{
+							justifyContent: "center",
+							width: "50%",
+
+							[theme.breakpoints.down("md")]: {
+								width: "90%",
+							},
+						}}
+					>
+						<Typography variant="body1">{generalError}</Typography>
+					</Alert>
+				</Backdrop>
+			</>
 		);
 
 	return (
 		<>
 			<Head>
 				<title>Crypto Tracker | Home</title>
+				<meta
+					name="description"
+					content="The best online resource about cryptocurrencies data. See global crypto stats, top 10 cryptos in the world and latest cryptos news all in one page."
+				/>
 			</Head>
 			<Grid
 				container
@@ -210,6 +219,7 @@ export async function getStaticProps() {
 					coins,
 					newsError: "Impossible to retrieve te latest news",
 				},
+				revalidate: 60,
 			};
 		}
 
@@ -217,6 +227,7 @@ export async function getStaticProps() {
 			props: {
 				generalError: "This page is temporarily unreachable",
 			},
+			revalidate: 60,
 		};
 	}
 }

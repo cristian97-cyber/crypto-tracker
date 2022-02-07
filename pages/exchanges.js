@@ -38,32 +38,41 @@ const Exchanges = function (props) {
 
 	if (error)
 		return (
-			<Backdrop
-				open={true}
-				sx={{
-					zIndex: theme.zIndex.appBar + 1,
-				}}
-			>
-				<Alert
-					severity="error"
+			<>
+				<Head>
+					<title>Crypto Tracker | Page Not Available</title>
+				</Head>
+				<Backdrop
+					open={true}
 					sx={{
-						justifyContent: "center",
-						width: "50%",
-
-						[theme.breakpoints.down("md")]: {
-							width: "90%",
-						},
+						zIndex: theme.zIndex.appBar + 1,
 					}}
 				>
-					<Typography variant="body1">{error}</Typography>
-				</Alert>
-			</Backdrop>
+					<Alert
+						severity="error"
+						sx={{
+							justifyContent: "center",
+							width: "50%",
+
+							[theme.breakpoints.down("md")]: {
+								width: "90%",
+							},
+						}}
+					>
+						<Typography variant="body1">{error}</Typography>
+					</Alert>
+				</Backdrop>
+			</>
 		);
 
 	return (
 		<>
 			<Head>
 				<title>Crypto Tracker | All Available Exchanges</title>
+				<meta
+					name="description"
+					content="View all available cryptocurrency exchanges and check their rank, name, 24h volume and website."
+				/>
 			</Head>
 			<Box component="section" sx={{ pt: "2rem", pb: "5rem", width: "100%" }}>
 				<Container fixed>
@@ -120,6 +129,7 @@ export async function getStaticProps() {
 			props: {
 				error: "This page is temporarily unreachable",
 			},
+			revalidate: 60,
 		};
 	}
 }

@@ -26,26 +26,31 @@ const Cryptocurrencies = function (props) {
 
 	if (error)
 		return (
-			<Backdrop
-				open={true}
-				sx={{
-					zIndex: theme.zIndex.appBar + 1,
-				}}
-			>
-				<Alert
-					severity="error"
+			<>
+				<Head>
+					<title>Crypto Tracker | Page Not Available</title>
+				</Head>
+				<Backdrop
+					open={true}
 					sx={{
-						justifyContent: "center",
-						width: "50%",
-
-						[theme.breakpoints.down("md")]: {
-							width: "90%",
-						},
+						zIndex: theme.zIndex.appBar + 1,
 					}}
 				>
-					<Typography variant="body1">{error}</Typography>
-				</Alert>
-			</Backdrop>
+					<Alert
+						severity="error"
+						sx={{
+							justifyContent: "center",
+							width: "50%",
+
+							[theme.breakpoints.down("md")]: {
+								width: "90%",
+							},
+						}}
+					>
+						<Typography variant="body1">{error}</Typography>
+					</Alert>
+				</Backdrop>
+			</>
 		);
 
 	const page = router.query.page ? +router.query.page : 1;
@@ -61,6 +66,10 @@ const Cryptocurrencies = function (props) {
 		<>
 			<Head>
 				<title>Crypto Tracker | Cryptocurrencies Real-Time Data</title>
+				<meta
+					name="description"
+					content="All the data you need on cryptocurrencies. View rank, price, market cap and daily change of each currency."
+				/>
 			</Head>
 			<Box component="section" sx={{ pt: "2rem", pb: "5rem" }}>
 				<Container fixed>
@@ -114,6 +123,7 @@ export async function getStaticProps() {
 			props: {
 				error: "This page is temporarily unreachable",
 			},
+			revalidate: 60,
 		};
 	}
 }

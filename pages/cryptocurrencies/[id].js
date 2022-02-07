@@ -112,51 +112,56 @@ const CryptocurrencyDetail = function (props) {
 
 	if (error) {
 		return (
-			<Backdrop
-				open={true}
-				sx={{
-					zIndex: theme.zIndex.appBar + 1,
-				}}
-			>
-				<Alert
-					severity="error"
-					action={
-						<Button color="inherit" onClick={() => router.replace("/")}>
-							RETURN TO HOME
-						</Button>
-					}
+			<>
+				<Head>
+					<title>Crypto Tracker | Page Not Available</title>
+				</Head>
+				<Backdrop
+					open={true}
 					sx={{
-						alignItems: "center",
-						width: "50%",
-
-						[theme.breakpoints.down("lg")]: {
-							width: "70%",
-						},
-
-						[theme.breakpoints.down("md")]: {
-							width: "90%",
-						},
-
-						[theme.breakpoints.down("sm")]: {
-							flexDirection: "column",
-							textAlign: "center",
-
-							"& .MuiAlert-icon": {
-								mr: 0,
-							},
-
-							"& .MuiAlert-action": {
-								pl: 0,
-								ml: 0,
-							},
-						},
+						zIndex: theme.zIndex.appBar + 1,
 					}}
 				>
-					<Typography variant="body1">
-						The currency you have searched does not exists
-					</Typography>
-				</Alert>
-			</Backdrop>
+					<Alert
+						severity="error"
+						action={
+							<Button color="inherit" onClick={() => router.replace("/")}>
+								RETURN TO HOME
+							</Button>
+						}
+						sx={{
+							alignItems: "center",
+							width: "50%",
+
+							[theme.breakpoints.down("lg")]: {
+								width: "70%",
+							},
+
+							[theme.breakpoints.down("md")]: {
+								width: "90%",
+							},
+
+							[theme.breakpoints.down("sm")]: {
+								flexDirection: "column",
+								textAlign: "center",
+
+								"& .MuiAlert-icon": {
+									mr: 0,
+								},
+
+								"& .MuiAlert-action": {
+									pl: 0,
+									ml: 0,
+								},
+							},
+						}}
+					>
+						<Typography variant="body1">
+							The currency you have searched does not exists
+						</Typography>
+					</Alert>
+				</Backdrop>
+			</>
 		);
 	}
 
@@ -178,6 +183,10 @@ const CryptocurrencyDetail = function (props) {
 		<>
 			<Head>
 				<title>Crypto Tracker | {coin.name} Real-Time Stats</title>
+				<meta
+					name="description"
+					content={`All information available on ${coin.name}. Check rank, price, daily change, volume, market cap, markets and historical price chart all in one page.`}
+				/>
 			</Head>
 			<Grid
 				container
@@ -410,12 +419,14 @@ export async function getStaticProps(context) {
 				coin,
 				markets,
 			},
+			revalidate: 60,
 		};
 	} catch (err) {
 		return {
 			props: {
 				error: true,
 			},
+			revalidate: 60,
 		};
 	}
 }
