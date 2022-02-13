@@ -60,7 +60,8 @@ const NavigationSearch = function (props) {
 		setQuery(event.target.value);
 
 		if (event.target.value.length > 0) {
-			router.push(`/search?q=${event.target.value}`);
+			router.push(encodeURI(`/search?q=${event.target.value}`));
+			// router.push(`/search?q=${event.target.value}`);
 		} else {
 			router.push(backPath);
 		}
